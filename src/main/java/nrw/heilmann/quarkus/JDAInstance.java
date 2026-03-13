@@ -7,6 +7,9 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import nrw.heilmann.quarkus.bot.listeners.SlashCommandListener;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -35,6 +38,16 @@ public class JDAInstance {
 			throw new RuntimeException(e);
 		}
 		log.info("✓ JDA is ready!");
+
+		registerSlashCommands();
+	}
+
+	private void registerSlashCommands() {
+		jda.updateCommands()
+				.addCommands(Commands.slash("ping", "pongs you back").addOption(OptionType.STRING, "message", "pongs you back the provided message"))
+				.queue();
+
+		jda.addEventListener(new SlashCommandListener());
 	}
 
 	@PreDestroy
