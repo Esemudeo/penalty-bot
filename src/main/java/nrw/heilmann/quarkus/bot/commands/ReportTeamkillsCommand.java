@@ -1,5 +1,6 @@
 package nrw.heilmann.quarkus.bot.commands;
 
+import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.entities.Guild;
@@ -16,10 +17,10 @@ import java.util.List;
 @ApplicationScoped
 public class ReportTeamkillsCommand extends SlashCommand {
 
-	public static final String ERROR_NOT_ON_GUILD = "Command wasn't executed inside a server.";
+	private static final String ERROR_NOT_ON_GUILD = "Command wasn't executed inside a server.";
 	private static final int DEFAULT_TK_AMOUNT = 1;
 	private static final String OPTION_AMOUNT = "amount";
-	public static final String OPTION_MEMBER = "member";
+	private static final String OPTION_MEMBER = "member";
 
 	@Override
 	public String getName() {
@@ -42,8 +43,8 @@ public class ReportTeamkillsCommand extends SlashCommand {
 	@Transactional
 	public void handleCommand(SlashCommandInteractionEvent event) {
 		try {
-			long authorId = resolveAuthorId(event);
-			long affectedMemberId = resolveAffectedMemberId(event, authorId);
+			Member author = resolveAuthor(event);
+			Member affectedMember = resolveAffectedMember(event, author);
 			long guildId = resolveGuildId(event);
 
 			OptionMapping amountOption = event.getOption(OPTION_AMOUNT);
@@ -51,32 +52,34 @@ public class ReportTeamkillsCommand extends SlashCommand {
 
 			Teamkill teamkillsToSave = Teamkill.builder()
 					.timestamp(event.getTimeCreated().toInstant())
-					.authorId(authorId)
-					.affectedMemberId(affectedMemberId)
+					.authorId(author.getIdLong())
+					.affectedMemberId(affectedMember.getIdLong())
 					.amount(amount)
 					.guildId(guildId)
 					.build();
 
 			teamkillsToSave.persist();
-
-			event.reply(authorId + " reported " + teamkillsToSave.amount + " teamkills for " + affectedMemberId).queue();
+			String teamkillPhrase = formatTeamkillPhrase(amount);
+			event.reply("%s %s for %s!".formatted(author.getEffectiveName(), teamkillPhrase, affectedMember.getEffectiveName())).queue();
 		} catch (NotInGuildException e) {
 			replyAsNotInGuild(event);
+		} catch (Exception e) {
+			event.reply("An error occurred while processing the command.").setEphemeral(true).queue();
 		}
 	}
 
-	private static long resolveAuthorId(SlashCommandInteractionEvent event) {
+	private static @Nonnull Member resolveAuthor(SlashCommandInteractionEvent event) {
 		Member author = event.getMember();
 		if (author == null) {
 			throw new NotInGuildException();
 		}
-		return author.getIdLong();
+		return author;
 	}
 
-	private static long resolveAffectedMemberId(SlashCommandInteractionEvent event, long authorId) {
+	private static @Nonnull Member resolveAffectedMember(SlashCommandInteractionEvent event, @Nonnull Member author) {
 		OptionMapping memberOption = event.getOption(OPTION_MEMBER);
 		if (memberOption == null) {
-			return authorId;
+			return author;
 		}
 
 		Member member = memberOption.getAsMember();
@@ -84,7 +87,7 @@ public class ReportTeamkillsCommand extends SlashCommand {
 			throw new NotInGuildException();
 		}
 
-		return member.getIdLong();
+		return member;
 	}
 
 	private static long resolveGuildId(SlashCommandInteractionEvent event) {
@@ -93,6 +96,18 @@ public class ReportTeamkillsCommand extends SlashCommand {
 			throw new NotInGuildException();
 		}
 		return guild.getIdLong();
+	}
+
+	private String formatTeamkillPhrase(int amount) {
+		if (amount == 0) {
+			return "reported no teamkill";
+		}
+		String action = amount > 0 ? "reported" : "removed";
+		int absoluteTeamkills = Math.abs(amount);
+		if (absoluteTeamkills == 1) {
+			return "%s a teamkill".formatted(action);
+		}
+		return "%s %d teamkills".formatted(action, absoluteTeamkills);
 	}
 
 	private static void replyAsNotInGuild(SlashCommandInteractionEvent event) {

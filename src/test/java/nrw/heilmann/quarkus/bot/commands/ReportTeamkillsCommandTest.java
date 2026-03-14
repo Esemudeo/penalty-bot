@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Random;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,7 +18,7 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 class ReportTeamkillsCommandTest {
 
-	private static final Random RANDOM = new Random();
+	private static final String ERROR_NOT_ON_GUILD = "Command wasn't executed inside a server.";
 
 	private static final ReportTeamkillsCommand UNDER_TEST = new ReportTeamkillsCommand();
 
@@ -40,7 +38,7 @@ class ReportTeamkillsCommandTest {
 		@BeforeEach
 		void init() {
 			Mockito.reset(event, reply);
-			when(event.reply(ReportTeamkillsCommand.ERROR_NOT_ON_GUILD)).thenReturn(reply);
+			when(event.reply(ERROR_NOT_ON_GUILD)).thenReturn(reply);
 			when(reply.setEphemeral(true)).thenReturn(reply);
 		}
 
@@ -77,7 +75,7 @@ class ReportTeamkillsCommandTest {
 		}
 
 		private void verifyNotInGuildReply() {
-			verify(event).reply(ReportTeamkillsCommand.ERROR_NOT_ON_GUILD);
+			verify(event).reply(ERROR_NOT_ON_GUILD);
 			verify(reply).setEphemeral(true);
 			verify(reply).queue();
 		}
