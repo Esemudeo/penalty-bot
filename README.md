@@ -81,3 +81,19 @@ Create your first JPA entity
 Easily start your REST Web Services
 
 [Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+
+# TODOs
+
+- implement new commands
+- multiple penalty types possible for guild
+- add role concept:
+    - min role necessary
+    - explicit roles necessary
+- some messages have to disappear
+- configuration concept for following stuff
+    - penalty types
+    - channel to use for messages
+    - paypal link
+    - roles for reporting, operating, managing
+    - roles for receiving reports
+- configuration page with all of the above
