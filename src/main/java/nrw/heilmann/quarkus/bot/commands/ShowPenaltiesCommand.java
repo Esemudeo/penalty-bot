@@ -4,10 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.List;
 import java.util.Random;
 
 @ApplicationScoped
@@ -23,13 +20,6 @@ public class ShowPenaltiesCommand extends SlashCommand {
 	@Override
 	protected String getDescription() {
 		return "Show penalties for a member.";
-	}
-
-	@Override
-	protected List<OptionData> getOptions() {
-		return List.of(
-				new OptionData(OptionType.MENTIONABLE, "member",
-						"The member you want to show the penalties reported for. Leave empty for yourself."));
 	}
 
 	@Override
