@@ -1,8 +1,11 @@
 package nrw.heilmann.quarkus.bot.persistence;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,5 +31,8 @@ public class Penalty extends PanacheEntity {
 	private Long affectedMemberId;
 	@Column(name = "amount")
 	private Integer amount;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "penalty_type_pkid", nullable = false)
+	private PenaltyType penaltyType;
 }
 
