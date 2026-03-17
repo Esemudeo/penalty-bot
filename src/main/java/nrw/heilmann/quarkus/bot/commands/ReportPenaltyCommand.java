@@ -14,6 +14,7 @@ import nrw.heilmann.quarkus.bot.persistence.Penalty;
 import nrw.heilmann.quarkus.bot.persistence.PenaltyType;
 
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ReportPenaltyCommand extends SlashCommand {
@@ -51,8 +52,12 @@ public class ReportPenaltyCommand extends SlashCommand {
 			OptionMapping amountOption = event.getOption(OPTION_AMOUNT);
 			int amount = amountOption != null ? amountOption.getAsInt() : DEFAULT_PENALTY_AMOUNT;
 
-			PenaltyType penaltyType = PenaltyType.<PenaltyType>find("guildId = ?1 and technicalName = ?2", guildId, "teamkill").firstResultOptional()
-					.orElseGet(() -> PenaltyType.builder().guildId(guildId).technicalName("teamkill").displayName("Teamkill").build());
+			Optional<PenaltyType> penaltyType =
+					PenaltyType.<PenaltyType>find("guildId = ?1 and technicalName = ?2", guildId, "teamkill").stream().findFirst();
+			if (penaltyType.isEmpty()) {
+				event.reply("Teamkill penalty not found for this server. Please contact the administrator.").setEphemeral(true).queue();
+				return;
+			}
 
 			Penalty penaltyToSave = Penalty.builder()
 					.timestamp(event.getTimeCreated().toInstant())
@@ -60,7 +65,7 @@ public class ReportPenaltyCommand extends SlashCommand {
 					.authorId(author.getIdLong())
 					.affectedMemberId(affectedMember.getIdLong())
 					.amount(amount)
-					.penaltyType(penaltyType)
+					.penaltyType(penaltyType.get())
 					.build();
 
 			penaltyToSave.persist();

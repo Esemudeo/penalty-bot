@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import nrw.heilmann.quarkus.bot.commands.ReportPenaltyCommand;
 import nrw.heilmann.quarkus.bot.commands.ShowPenaltiesCommand;
+import nrw.heilmann.quarkus.bot.listeners.GuildReadyListener;
 import nrw.heilmann.quarkus.bot.listeners.SlashCommandListener;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -22,6 +23,9 @@ public class JDAInstance {
 	String discordToken;
 
 	@Inject
+	GuildReadyListener guildReadyListener;
+
+	@Inject
 	SlashCommandListener slashCommandListener;
 
 	@Inject
@@ -33,6 +37,7 @@ public class JDAInstance {
 	@Inject
 	Logger log;
 
+
 	void onStart(@Observes StartupEvent event) {
 
 		if (discordToken == null || discordToken.isBlank()) {
@@ -41,7 +46,7 @@ public class JDAInstance {
 		}
 
 		try {
-			jda = JDABuilder.createDefault(discordToken).build();
+			jda = JDABuilder.createDefault(discordToken).addEventListeners(guildReadyListener, slashCommandListener).build();
 			jda.awaitReady();
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
@@ -56,8 +61,6 @@ public class JDAInstance {
 				.addCommands(reportPenaltyCommand.toCommandData())
 				.addCommands(showPenaltiesCommand.toCommandData())
 				.queue();
-
-		jda.addEventListener(slashCommandListener);
 	}
 
 	@PreDestroy
