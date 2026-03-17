@@ -10,33 +10,34 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import nrw.heilmann.quarkus.bot.exceptions.NotInGuildException;
-import nrw.heilmann.quarkus.bot.persistence.Teamkill;
+import nrw.heilmann.quarkus.bot.persistence.Penalty;
+import nrw.heilmann.quarkus.bot.persistence.PenaltyType;
 
 import java.util.List;
 
 @ApplicationScoped
-public class ReportTeamkillsCommand extends SlashCommand {
+public class ReportPenaltyCommand extends SlashCommand {
 
 	private static final String ERROR_NOT_ON_GUILD = "Command wasn't executed inside a server.";
-	private static final int DEFAULT_TK_AMOUNT = 1;
+	private static final int DEFAULT_PENALTY_AMOUNT = 1;
 	private static final String OPTION_AMOUNT = "amount";
 	private static final String OPTION_MEMBER = "member";
 
 	@Override
 	public String getName() {
-		return "tk";
+		return "penalty";
 	}
 
 	@Override
 	protected String getDescription() {
-		return "Report teamkills for a member.";
+		return "Report a penalty for a member.";
 	}
 
 	@Override
 	protected List<OptionData> getOptions() {
 		return List.of(
-				new OptionData(OptionType.MENTIONABLE, OPTION_MEMBER, "The member you want to report the teamkills for. Leave empty for yourself."),
-				new OptionData(OptionType.INTEGER, OPTION_AMOUNT, "The amount of teamkills you want to report. Leave empty for default of '1'."));
+				new OptionData(OptionType.MENTIONABLE, OPTION_MEMBER, "The member you want to report the penalty for. Leave empty for yourself."),
+				new OptionData(OptionType.INTEGER, OPTION_AMOUNT, "The amount of penalties you want to report. Leave empty for default of '1'."));
 	}
 
 	@Override
@@ -48,19 +49,25 @@ public class ReportTeamkillsCommand extends SlashCommand {
 			long guildId = resolveGuildId(event);
 
 			OptionMapping amountOption = event.getOption(OPTION_AMOUNT);
-			int amount = amountOption != null ? amountOption.getAsInt() : DEFAULT_TK_AMOUNT;
+			int amount = amountOption != null ? amountOption.getAsInt() : DEFAULT_PENALTY_AMOUNT;
 
-			Teamkill teamkillsToSave = Teamkill.builder()
+			PenaltyType penaltyType = PenaltyType.<PenaltyType>find("guildId = ?1 and technicalName = ?2", guildId, "teamkill").firstResultOptional()
+					.orElseGet(() -> PenaltyType.builder().guildId(guildId).technicalName("teamkill").displayName("Teamkill").build());
+
+			Penalty penaltyToSave = Penalty.builder()
 					.timestamp(event.getTimeCreated().toInstant())
+					.guildId(guildId)
 					.authorId(author.getIdLong())
 					.affectedMemberId(affectedMember.getIdLong())
 					.amount(amount)
-					.guildId(guildId)
+					.penaltyType(penaltyType)
 					.build();
 
-			teamkillsToSave.persist();
-			String teamkillPhrase = formatTeamkillPhrase(amount);
-			event.reply("%s %s for %s!".formatted(author.getEffectiveName(), teamkillPhrase, affectedMember.getEffectiveName())).queue();
+			penaltyToSave.persist();
+			String penaltyPhrase = formatPenaltyPhrase(amount);
+			event.reply(
+					"%s %s of type '%s' for %s!".formatted(author.getEffectiveName(), penaltyPhrase, penaltyToSave.getPenaltyType().getDisplayName(),
+							affectedMember.getEffectiveName())).queue();
 		} catch (NotInGuildException e) {
 			replyAsNotInGuild(event);
 		} catch (Exception e) {
@@ -98,16 +105,13 @@ public class ReportTeamkillsCommand extends SlashCommand {
 		return guild.getIdLong();
 	}
 
-	private String formatTeamkillPhrase(int amount) {
-		if (amount == 0) {
-			return "reported no teamkill";
-		}
+	private String formatPenaltyPhrase(int amount) {
 		String action = amount > 0 ? "reported" : "removed";
-		int absoluteTeamkills = Math.abs(amount);
-		if (absoluteTeamkills == 1) {
-			return "%s a teamkill".formatted(action);
+		int absolutePenalties = Math.abs(amount);
+		if (absolutePenalties == 1) {
+			return "%s a penalty".formatted(action);
 		}
-		return "%s %d teamkills".formatted(action, absoluteTeamkills);
+		return "%s %d penalties".formatted(action, absolutePenalties);
 	}
 
 	private static void replyAsNotInGuild(SlashCommandInteractionEvent event) {

@@ -16,11 +16,11 @@ import static org.mockito.Mockito.when;
 
 
 @QuarkusTest
-class ReportTeamkillsCommandTest {
+class ReportPenaltyCommandTest {
 
 	private static final String ERROR_NOT_ON_GUILD = "Command wasn't executed inside a server.";
 
-	private static final ReportTeamkillsCommand UNDER_TEST = new ReportTeamkillsCommand();
+	private static final ReportPenaltyCommand UNDER_TEST = new ReportPenaltyCommand();
 
 
 	SlashCommandInteractionEvent event = mock(SlashCommandInteractionEvent.class);

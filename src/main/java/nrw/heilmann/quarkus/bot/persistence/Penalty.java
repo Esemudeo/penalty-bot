@@ -1,0 +1,32 @@
+package nrw.heilmann.quarkus.bot.persistence;
+
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "penalty")
+public class Penalty extends PanacheEntity {
+	@Column(name = "timestamp")
+	private Instant timestamp;
+	@Column(name = "guild_id")
+	private Long guildId;
+	@Column(name = "author_id")
+	private Long authorId;
+	@Column(name = "affected_member_id")
+	private Long affectedMemberId;
+	@Column(name = "amount")
+	private Integer amount;
+}
+

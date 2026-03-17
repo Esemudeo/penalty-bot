@@ -7,8 +7,8 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import nrw.heilmann.quarkus.bot.commands.ReportTeamkillsCommand;
-import nrw.heilmann.quarkus.bot.commands.ShowTeamkillsCommand;
+import nrw.heilmann.quarkus.bot.commands.ReportPenaltyCommand;
+import nrw.heilmann.quarkus.bot.commands.ShowPenaltiesCommand;
 import nrw.heilmann.quarkus.bot.listeners.SlashCommandListener;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -25,10 +25,10 @@ public class JDAInstance {
 	SlashCommandListener slashCommandListener;
 
 	@Inject
-	ReportTeamkillsCommand reportTeamkillsCommand;
+	ReportPenaltyCommand reportPenaltyCommand;
 
 	@Inject
-	ShowTeamkillsCommand showTeamkillsCommand;
+	ShowPenaltiesCommand showPenaltiesCommand;
 
 	@Inject
 	Logger log;
@@ -53,8 +53,8 @@ public class JDAInstance {
 
 	private void registerSlashCommands() {
 		jda.updateCommands()
-				.addCommands(reportTeamkillsCommand.toCommandData())
-				.addCommands(showTeamkillsCommand.toCommandData())
+				.addCommands(reportPenaltyCommand.toCommandData())
+				.addCommands(showPenaltiesCommand.toCommandData())
 				.queue();
 
 		jda.addEventListener(slashCommandListener);
