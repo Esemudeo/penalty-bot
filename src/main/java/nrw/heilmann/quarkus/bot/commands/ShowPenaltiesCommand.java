@@ -4,9 +4,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import nrw.heilmann.quarkus.bot.permissions.RequiresCommandPermission;
 
 import java.util.Random;
 
+@RequiresCommandPermission
 @ApplicationScoped
 public class ShowPenaltiesCommand extends SlashCommand {
 

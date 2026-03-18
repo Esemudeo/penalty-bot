@@ -1,4 +1,4 @@
-package nrw.heilmann.quarkus.bot.persistence;
+package nrw.heilmann.quarkus.bot.persistence.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.CascadeType;
@@ -17,7 +17,7 @@ import java.time.Instant;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @Table(name = "penalty")
 public class Penalty extends PanacheEntity {
@@ -35,4 +35,3 @@ public class Penalty extends PanacheEntity {
 	@JoinColumn(name = "penalty_type_pkid", nullable = false)
 	private PenaltyType penaltyType;
 }
-

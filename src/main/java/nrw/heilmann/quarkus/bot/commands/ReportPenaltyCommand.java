@@ -1,7 +1,7 @@
 package nrw.heilmann.quarkus.bot.commands;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
+import jakarta.inject.Inject;
 import net.dv8tion.jda.api.components.label.Label;
 import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
 import net.dv8tion.jda.api.components.selections.SelectOption;
@@ -12,18 +12,25 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
 import nrw.heilmann.quarkus.bot.exceptions.NotInGuildException;
-import nrw.heilmann.quarkus.bot.persistence.PenaltyType;
+import nrw.heilmann.quarkus.bot.permissions.RequiresCommandPermission;
+import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyTypeRepository;
 
 import java.util.List;
 import java.util.UUID;
 
+@RequiresCommandPermission
 @ApplicationScoped
 public class ReportPenaltyCommand extends SlashCommand {
 
+	public static final String MODAL_ID_PREFIX = "report-penalty:";
+	public static final String FIELD_MEMBER = "modal-member";
+	public static final String FIELD_AMOUNT = "modal-amount";
+	public static final String FIELD_REASON = "modal-reason";
+
 	private static final String ERROR_NOT_ON_GUILD = "Command wasn't executed inside a server.";
-	private static final String FIELD_MEMBER = "modal-member";
-	private static final String FIELD_AMOUNT = "modal-amount";
-	private static final String FIELD_REASON = "modal-reason";
+
+	@Inject
+	PenaltyTypeRepository penaltyTypeRepository;
 
 	@Override
 	public String getName() {
@@ -36,7 +43,6 @@ public class ReportPenaltyCommand extends SlashCommand {
 	}
 
 	@Override
-	@Transactional
 	public void handleCommand(SlashCommandInteractionEvent event) {
 		try {
 			long guildId = resolveGuildId(event);
@@ -53,10 +59,9 @@ public class ReportPenaltyCommand extends SlashCommand {
 					.setRequired(true)
 					.build();
 
-			List<SelectOption> allPenaltyTypes =
-					PenaltyType.<PenaltyType>find("guildId = ?1", guildId).stream()
-							.map(pt -> SelectOption.of(pt.getDisplayName(), pt.getTechnicalName()))
-							.toList();
+			List<SelectOption> allPenaltyTypes = penaltyTypeRepository.findByGuild(guildId).stream()
+					.map(pt -> SelectOption.of(pt.getDisplayName(), pt.getTechnicalName()))
+					.toList();
 			StringSelectMenu reasonSelect = StringSelectMenu.create(FIELD_REASON)
 					.setPlaceholder("Select a reason")
 					.addOptions(allPenaltyTypes)
@@ -64,7 +69,7 @@ public class ReportPenaltyCommand extends SlashCommand {
 					.setRequired(true)
 					.build();
 
-			Modal modal = Modal.create(UUID.randomUUID().toString(), "Report Penalty")
+			Modal modal = Modal.create(MODAL_ID_PREFIX + UUID.randomUUID(), "Report Penalty")
 					.addComponents(
 							Label.of("Affected Member", memberSelect),
 							Label.of("Amount", amountInput),
@@ -72,7 +77,6 @@ public class ReportPenaltyCommand extends SlashCommand {
 					.build();
 
 			event.replyModal(modal).queue();
-
 		} catch (NotInGuildException e) {
 			replyAsNotInGuild(event);
 		} catch (Exception e) {

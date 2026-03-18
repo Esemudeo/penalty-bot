@@ -2,33 +2,41 @@ package nrw.heilmann.quarkus.bot.listeners;
 
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import nrw.heilmann.quarkus.bot.persistence.PenaltyType;
-
-import java.util.Optional;
+import nrw.heilmann.quarkus.bot.commands.SlashCommand;
+import nrw.heilmann.quarkus.bot.persistence.repository.CommandPermissionRepository;
+import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyTypeRepository;
 
 @ApplicationScoped
 public class GuildReadyListener extends ListenerAdapter {
 
+	@Any
+	Instance<SlashCommand> slashCommands;
+
+	@Inject
+	PenaltyTypeRepository penaltyTypeRepository;
+
+	@Inject
+	CommandPermissionRepository commandPermissionRepository;
+
 	@Override
-	@Transactional
 	public void onGuildReady(@Nonnull GuildReadyEvent event) {
-		createTeamkillPenaltyAsDefault(event);
+		long guildId = event.getGuild().getIdLong();
+		provideDefaultPenaltyTypes(guildId);
+		provideDefaultCommandPermissions(guildId);
 	}
 
-	private static void createTeamkillPenaltyAsDefault(@Nonnull GuildReadyEvent event) {
-		long guildId = event.getGuild().getIdLong();
-		Optional<PenaltyType> teamkillPenaltyType =
-				PenaltyType.<PenaltyType>find("guildId = ?1 and technicalName = ?2", guildId, "teamkill").stream().findAny();
-		if (teamkillPenaltyType.isEmpty()) {
-			PenaltyType.builder()
-					.guildId(guildId)
-					.technicalName("teamkill")
-					.displayName("Teamkill")
-					.build()
-					.persist();
+	private void provideDefaultPenaltyTypes(long guildId) {
+		penaltyTypeRepository.persistIfAbsent(guildId, "teamkill", "Teamkill");
+	}
+
+	private void provideDefaultCommandPermissions(long guildId) {
+		for (String commandName : slashCommands.stream().map(SlashCommand::getName).toList()) {
+			commandPermissionRepository.persistIfAbsent(guildId, commandName);
 		}
 	}
 }

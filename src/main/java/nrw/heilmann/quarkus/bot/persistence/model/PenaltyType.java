@@ -1,4 +1,4 @@
-package nrw.heilmann.quarkus.bot.persistence;
+package nrw.heilmann.quarkus.bot.persistence.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.annotation.Nonnull;
@@ -24,4 +24,3 @@ public class PenaltyType extends PanacheEntity {
 	@Column(name = "display_name")
 	private @Nonnull String displayName;
 }
-
