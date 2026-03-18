@@ -6,7 +6,13 @@ import nrw.heilmann.quarkus.bot.persistence.model.Penalty;
 import nrw.heilmann.quarkus.bot.persistence.model.PenaltyType;
 import org.hibernate.Hibernate;
 
+import java.time.Instant;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 @Transactional
@@ -24,4 +30,18 @@ public class PenaltyRepository {
 		Hibernate.initialize(managed.getPenaltyType());
 		return Optional.of(managed);
 	}
+
+	public Map<String, Integer> aggregateByMonth(long guildId, YearMonth yearMonth, long userId) {
+		Instant startOfMonthInclusive = yearMonth.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+		Instant endOfMonthExclusive = yearMonth.plusMonths(1).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+		List<Penalty> allPenaltiesOfMonth =
+				Penalty.list("guildId = ?1 and affectedMemberId = ?2 and timestamp >= ?3 and timestamp < ?4", guildId, userId, startOfMonthInclusive,
+						endOfMonthExclusive);
+		return allPenaltiesOfMonth
+				.stream()
+				.map(p -> new PenaltyAmountByType(p.getPenaltyType().getDisplayName(), p.getAmount()))
+				.collect(Collectors.groupingBy(PenaltyAmountByType::displayName, Collectors.summingInt(PenaltyAmountByType::amount)));
+	}
+
+	record PenaltyAmountByType(String displayName, int amount) {}
 }
