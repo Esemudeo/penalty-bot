@@ -43,5 +43,14 @@ public class PenaltyRepository {
 				.collect(Collectors.groupingBy(PenaltyAmountByType::displayName, Collectors.summingInt(PenaltyAmountByType::amount)));
 	}
 
+	public List<YearMonth> findAvailableMonthsForGuild(long guildId, int limit) {
+		return Penalty.<Penalty>find("guildId = ?1 ORDER BY timestamp DESC", guildId)
+				.stream()
+				.map(p -> YearMonth.from(p.getTimestamp().atZone(ZoneOffset.UTC)))
+				.distinct()
+				.limit(limit)
+				.toList();
+	}
+
 	record PenaltyAmountByType(String displayName, int amount) {}
 }

@@ -11,6 +11,7 @@ import nrw.heilmann.quarkus.bot.commands.ReportPenaltyCommand;
 import nrw.heilmann.quarkus.bot.commands.ShowPenaltiesCommand;
 import nrw.heilmann.quarkus.bot.listeners.GuildReadyListener;
 import nrw.heilmann.quarkus.bot.listeners.ReportPenaltyModalListener;
+import nrw.heilmann.quarkus.bot.listeners.ShowPenaltiesModalListener;
 import nrw.heilmann.quarkus.bot.listeners.SlashCommandListener;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -30,13 +31,16 @@ public class JDAInstance {
 	SlashCommandListener slashCommandListener;
 
 	@Inject
-	ReportPenaltyModalListener reportPenaltyModalListener;
-
-	@Inject
 	ReportPenaltyCommand reportPenaltyCommand;
 
 	@Inject
+	ReportPenaltyModalListener reportPenaltyModalListener;
+
+	@Inject
 	ShowPenaltiesCommand showPenaltiesCommand;
+
+	@Inject
+	ShowPenaltiesModalListener showPenaltiesModalListener;
 
 	@Inject
 	Logger log;
@@ -45,12 +49,13 @@ public class JDAInstance {
 	void onStart(@Observes StartupEvent event) {
 
 		if (discordToken == null || discordToken.isBlank()) {
-			log.error("Discord bot token is not set! Please set the 'discord.bot-token' configuration property.");
+			log.error("Discord bot token is not set! Please set the 'DISCORD_BOT_TOKEN' environment variable.");
 			return;
 		}
 
 		try {
-			jda = JDABuilder.createDefault(discordToken).addEventListeners(guildReadyListener, slashCommandListener, reportPenaltyModalListener)
+			jda = JDABuilder.createDefault(discordToken)
+					.addEventListeners(guildReadyListener, slashCommandListener, reportPenaltyModalListener, showPenaltiesModalListener)
 					.build();
 			jda.awaitReady();
 		} catch (InterruptedException e) {
@@ -74,10 +79,6 @@ public class JDAInstance {
 			jda.shutdown();
 			log.info("JDA was stopped");
 		}
-	}
-
-	public JDA getJDA() {
-		return jda;
 	}
 }
 

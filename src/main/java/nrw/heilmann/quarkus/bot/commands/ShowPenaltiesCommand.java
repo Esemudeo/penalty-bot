@@ -2,21 +2,31 @@ package nrw.heilmann.quarkus.bot.commands;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.selections.EntitySelectMenu;
+import net.dv8tion.jda.api.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.modals.Modal;
+import nrw.heilmann.quarkus.bot.exceptions.NotInGuildException;
 import nrw.heilmann.quarkus.bot.permissions.RequiresCommandPermission;
 import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyRepository;
 
 import java.time.YearMonth;
-import java.util.Map;
-import java.util.Objects;
+import java.time.format.TextStyle;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 @RequiresCommandPermission
 @ApplicationScoped
 public class ShowPenaltiesCommand extends SlashCommand {
 
-	private final static String OPTION_MEMBER = "member";
+	public static final String MODAL_ID_PREFIX = "show-penalties:";
+	public static final String FIELD_MEMBER = "modal-member";
+	public static final String FIELD_MONTH = "modal-month";
+	private static final int SHOW_FOR_LAST_X_MONTHS = 6;
 
 	@Inject
 	PenaltyRepository penaltyRepository;
@@ -28,25 +38,53 @@ public class ShowPenaltiesCommand extends SlashCommand {
 
 	@Override
 	protected String getDescription() {
-		return "Show penalties for a member.";
+		return "Show penalties for a member and a specific month.";
 	}
 
 	@Override
 	public void handleCommand(SlashCommandInteractionEvent event) {
-		OptionMapping memberOption = event.getOption(OPTION_MEMBER);
-		Member affectedMember = memberOption != null ? memberOption.getAsMember() : event.getMember();
-		if (affectedMember != null) {
-			Map<String, Integer> stringIntegerMap =
-					penaltyRepository.aggregateByMonth(Objects.requireNonNull(event.getGuild()).getIdLong(), YearMonth.now(),
-							affectedMember.getIdLong());
-			event.reply("Penalties for " + affectedMember.getEffectiveName() + ":\n" +
-							stringIntegerMap.entrySet().stream()
-									.map(entry -> entry.getKey() + ": " + entry.getValue())
-									.reduce((a, b) -> a + "\n" + b)
-									.orElse("No penalties found."))
-					.queue();
-		} else {
-			event.reply("User is not part of this guild.").setEphemeral(true).queue();
+		try {
+			Guild guild = event.getGuild();
+			if (guild == null) {
+				throw new NotInGuildException();
+			}
+
+			List<YearMonth> availableMonths = penaltyRepository.findAvailableMonthsForGuild(guild.getIdLong(), SHOW_FOR_LAST_X_MONTHS);
+			if (availableMonths.isEmpty()) {
+				event.reply("No penalties found for the last %d months.".formatted(SHOW_FOR_LAST_X_MONTHS)).setEphemeral(true).queue();
+				return;
+			}
+
+			EntitySelectMenu memberSelect = EntitySelectMenu.create(FIELD_MEMBER, EntitySelectMenu.SelectTarget.USER)
+					.setPlaceholder("Select a member")
+					.setDefaultValues(EntitySelectMenu.DefaultValue.user(event.getUser().getIdLong()))
+					.setRequired(true)
+					.build();
+
+			List<SelectOption> monthOptions = availableMonths.stream()
+					.map(ym -> SelectOption.of(
+							ym.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + ym.getYear(),
+							ym.toString()))
+					.toList();
+
+			StringSelectMenu monthSelect = StringSelectMenu.create(FIELD_MONTH)
+					.setPlaceholder("Select a month")
+					.addOptions(monthOptions)
+					.setDefaultValues(monthOptions.getFirst().getValue())
+					.setRequired(true)
+					.build();
+
+			Modal modal = Modal.create(MODAL_ID_PREFIX + UUID.randomUUID(), "Show Penalties")
+					.addComponents(
+							Label.of("Member", memberSelect),
+							Label.of("Month", monthSelect))
+					.build();
+
+			event.replyModal(modal).queue();
+		} catch (NotInGuildException e) {
+			event.reply("Command wasn't executed inside a server.").setEphemeral(true).queue();
+		} catch (Exception e) {
+			event.reply("An error occurred while processing the command.").setEphemeral(true).queue();
 		}
 	}
 }

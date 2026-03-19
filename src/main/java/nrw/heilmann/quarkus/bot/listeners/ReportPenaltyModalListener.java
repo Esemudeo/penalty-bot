@@ -4,40 +4,31 @@ import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import nrw.heilmann.quarkus.bot.commands.ReportPenaltyCommand;
 import nrw.heilmann.quarkus.bot.persistence.model.Penalty;
 import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyRepository;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-public class ReportPenaltyModalListener extends ListenerAdapter {
+public class ReportPenaltyModalListener extends ModalListener implements MemberModalTrait {
 
 	@Inject
 	PenaltyRepository penaltyRepository;
 
 	@Override
-	public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
-		if (!event.getModalId().startsWith(ReportPenaltyCommand.MODAL_ID_PREFIX)) {
-			return;
-		}
+	protected String getModalIdPrefix() {
+		return ReportPenaltyCommand.MODAL_ID_PREFIX;
+	}
 
-		Guild guild = event.getGuild();
-		if (guild == null) {
-			event.reply("This command can only be used inside a server.").setEphemeral(true).queue();
+	@Override
+	protected void handleModalInteraction(ModalInteractionEvent event, @Nonnull Guild guild) {
+		Member affectedMember = validateMember(event, ReportPenaltyCommand.FIELD_MEMBER).orElse(null);
+		if (affectedMember == null)
 			return;
-		}
-
-		List<User> selectedUsers = Objects.requireNonNull(event.getValue(ReportPenaltyCommand.FIELD_MEMBER)).getAsMentions().getUsers();
-		if (selectedUsers.isEmpty()) {
-			event.reply("No member selected.").setEphemeral(true).queue();
-			return;
-		}
 
 		String amountRaw = Objects.requireNonNull(event.getValue(ReportPenaltyCommand.FIELD_AMOUNT)).getAsString();
 		int amount;
@@ -52,7 +43,6 @@ public class ReportPenaltyModalListener extends ListenerAdapter {
 		}
 
 		String penaltyTypeName = Objects.requireNonNull(event.getValue(ReportPenaltyCommand.FIELD_REASON)).getAsStringList().getFirst();
-		User affectedMember = selectedUsers.getFirst();
 
 		Penalty penaltyDraft = Penalty.builder()
 				.timestamp(Instant.now())
