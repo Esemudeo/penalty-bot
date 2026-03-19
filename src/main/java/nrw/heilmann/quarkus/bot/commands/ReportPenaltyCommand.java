@@ -13,9 +13,11 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.modals.Modal;
 import nrw.heilmann.quarkus.bot.exceptions.NotInGuildException;
 import nrw.heilmann.quarkus.bot.permissions.RequiresCommandPermission;
+import nrw.heilmann.quarkus.bot.persistence.model.PenaltyType;
 import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyTypeRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiresCommandPermission
@@ -59,15 +61,25 @@ public class ReportPenaltyCommand extends SlashCommand {
 					.setRequired(true)
 					.build();
 
-			List<SelectOption> allPenaltyTypes = penaltyTypeRepository.findByGuild(guildId).stream()
+			List<PenaltyType> penaltyTypes = penaltyTypeRepository.findByGuild(guildId);
+			List<SelectOption> allPenaltyTypes = penaltyTypes.stream()
 					.map(pt -> SelectOption.of(pt.getDisplayName(), pt.getTechnicalName()))
 					.toList();
-			StringSelectMenu reasonSelect = StringSelectMenu.create(FIELD_REASON)
-					.setPlaceholder("Select a reason")
+			Optional<PenaltyType> defaultPenaltyType = penaltyTypes.stream()
+					.filter(PenaltyType::isDefaultType)
+					.findFirst();
+
+			StringSelectMenu.Builder reasonSelectBuilder = StringSelectMenu.create(FIELD_REASON)
 					.addOptions(allPenaltyTypes)
-					.setDefaultValues("teamkill")
-					.setRequired(true)
-					.build();
+					.setRequired(true);
+
+			if (defaultPenaltyType.isPresent()) {
+				reasonSelectBuilder.setDefaultValues(defaultPenaltyType.get().getTechnicalName());
+			} else {
+				reasonSelectBuilder.setPlaceholder("No default value configured - please select manually");
+			}
+
+			StringSelectMenu reasonSelect = reasonSelectBuilder.build();
 
 			Modal modal = Modal.create(MODAL_ID_PREFIX + UUID.randomUUID(), "Report Penalty")
 					.addComponents(

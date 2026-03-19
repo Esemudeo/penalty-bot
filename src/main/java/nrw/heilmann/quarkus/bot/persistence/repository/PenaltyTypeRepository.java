@@ -19,12 +19,13 @@ public class PenaltyTypeRepository {
 		return PenaltyType.find("guildId = ?1 and technicalName = ?2", guildId, technicalName).firstResultOptional();
 	}
 
-	public void persistIfAbsent(long guildId, String technicalName, String displayName) {
+	public void persistIfAbsent(long guildId, String technicalName, String displayName, boolean defaultType) {
 		if (findByGuildAndName(guildId, technicalName).isEmpty()) {
 			PenaltyType.builder()
 					.guildId(guildId)
 					.technicalName(technicalName)
 					.displayName(displayName)
+					.defaultType(defaultType)
 					.build()
 					.persist();
 		}
