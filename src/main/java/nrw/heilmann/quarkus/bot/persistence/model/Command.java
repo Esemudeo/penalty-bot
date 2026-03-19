@@ -24,17 +24,17 @@ import java.util.List;
 @Builder
 @Entity
 @Table(
-		name = CommandPermission.TABLE_NAME,
+		name = Command.TABLE_NAME,
 		uniqueConstraints = @UniqueConstraint(
-				name = "uq_" + CommandPermission.TABLE_NAME,
-				columnNames = {CommandPermission.COLUMN_GUILD_ID, CommandPermission.COLUMN_COMMAND_NAME}
+				name = "uq_command_guild_command",
+				columnNames = {Command.COLUMN_GUILD_ID, Command.COLUMN_COMMAND_NAME}
 		)
 )
-public class CommandPermission extends PanacheEntity {
+public class Command extends PanacheEntity {
 
 	static final String COLUMN_GUILD_ID = "guild_id";
 	static final String COLUMN_COMMAND_NAME = "command_name";
-	static final String TABLE_NAME = "command_permission";
+	static final String TABLE_NAME = "command";
 
 	@Column(name = COLUMN_GUILD_ID, nullable = false)
 	private @Nonnull Long guildId;
@@ -47,6 +47,6 @@ public class CommandPermission extends PanacheEntity {
 
 	@Builder.Default
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	@JoinColumn(name = CommandPermissionExplicitRole.COMMAND_PERMISSION_ID)
-	private List<CommandPermissionExplicitRole> explicitRoles = new ArrayList<>();
+	@JoinColumn(name = CommandExplicitRole.COMMAND_ID)
+	private List<CommandExplicitRole> explicitRoles = new ArrayList<>();
 }

@@ -8,9 +8,9 @@ import jakarta.interceptor.InvocationContext;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import nrw.heilmann.quarkus.bot.persistence.model.CommandPermission;
-import nrw.heilmann.quarkus.bot.persistence.model.CommandPermissionExplicitRole;
-import nrw.heilmann.quarkus.bot.persistence.repository.CommandPermissionRepository;
+import nrw.heilmann.quarkus.bot.persistence.model.Command;
+import nrw.heilmann.quarkus.bot.persistence.model.CommandExplicitRole;
+import nrw.heilmann.quarkus.bot.persistence.repository.CommandRepository;
 import org.jboss.logging.Logger;
 
 import java.util.Optional;
@@ -28,7 +28,7 @@ public class CommandPermissionInterceptor {
 	CommandPermissionService permissionService;
 
 	@Inject
-	CommandPermissionRepository commandPermissionRepository;
+	CommandRepository commandPermissionRepository;
 
 	@AroundInvoke
 	public Object checkPermission(InvocationContext ctx) throws Exception {
@@ -54,7 +54,7 @@ public class CommandPermissionInterceptor {
 	}
 
 	private boolean isAllowed(Guild guild, Member member, String commandName) {
-		Optional<CommandPermission> configOpt = commandPermissionRepository.findByGuildAndCommand(guild.getIdLong(), commandName);
+		Optional<Command> configOpt = commandPermissionRepository.findByGuildAndCommand(guild.getIdLong(), commandName);
 
 		if (configOpt.isEmpty()) {
 			LOG.debug("No permission config for guild=%d command=%s; DENY_IF_UNCONFIGURED=%b"
@@ -62,14 +62,14 @@ public class CommandPermissionInterceptor {
 			return !DENY_IF_UNCONFIGURED;
 		}
 
-		CommandPermission config = configOpt.get();
+		Command config = configOpt.get();
 
 		if (config.getMinRoleId() != null && permissionService.hasMinRole(guild, member, config.getMinRoleId())) {
 			return true;
 		}
 
 		return permissionService.hasExplicitRole(member,
-				config.getExplicitRoles().stream().map(CommandPermissionExplicitRole::getRoleId).toList());
+				config.getExplicitRoles().stream().map(CommandExplicitRole::getRoleId).toList());
 	}
 
 	private static SlashCommandInteractionEvent findEvent(InvocationContext ctx) {

@@ -17,20 +17,20 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(
-		name = CommandPermissionExplicitRole.TABLE_NAME,
+		name = CommandExplicitRole.TABLE_NAME,
 		uniqueConstraints = @UniqueConstraint(
-				name = "uq_" + CommandPermissionExplicitRole.TABLE_NAME,
-				columnNames = {CommandPermissionExplicitRole.COMMAND_PERMISSION_ID, CommandPermissionExplicitRole.COLUMN_ROLE_ID}
+				name = "uq_" + CommandExplicitRole.TABLE_NAME,
+				columnNames = {CommandExplicitRole.COMMAND_ID, CommandExplicitRole.COLUMN_ROLE_ID}
 		)
 )
-public class CommandPermissionExplicitRole extends PanacheEntity {
+public class CommandExplicitRole extends PanacheEntity {
 
-	static final String COMMAND_PERMISSION_ID = "command_permission_id";
+	static final String COMMAND_ID = "command_permission_id";
 	static final String COLUMN_ROLE_ID = "role_id";
-	static final String TABLE_NAME = "command_permission_explicit_role";
+	static final String TABLE_NAME = "command_explicit_role";
 
-	@Column(name = COMMAND_PERMISSION_ID, nullable = false)
-	private @Nonnull Long commandPermissionId;
+	@Column(name = COMMAND_ID, nullable = false)
+	private @Nonnull Long commandId;
 
 	@Column(name = COLUMN_ROLE_ID, nullable = false)
 	private @Nonnull Long roleId;
