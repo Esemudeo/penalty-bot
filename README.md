@@ -85,10 +85,6 @@ Easily start your REST Web Services
 # TODOs
 
 - implement new commands
-- multiple penalty types possible for guild
-- add role concept:
-    - min role necessary
-    - explicit roles necessary
 - some messages have to disappear
 - configuration concept for following stuff
     - penalty types
