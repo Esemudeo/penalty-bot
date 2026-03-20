@@ -25,7 +25,7 @@ public class CommandPermissionInterceptor {
 	private static final Logger LOG = Logger.getLogger(CommandPermissionInterceptor.class);
 
 	@Inject
-	CommandPermissionService permissionService;
+	PermissionService permissionService;
 
 	@Inject
 	CommandRepository commandPermissionRepository;

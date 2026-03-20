@@ -9,9 +9,9 @@ import org.jboss.logging.Logger;
 import java.util.Collection;
 
 @ApplicationScoped
-public class CommandPermissionService {
+public class PermissionService {
 
-	private static final Logger LOG = Logger.getLogger(CommandPermissionService.class);
+	private static final Logger LOG = Logger.getLogger(PermissionService.class);
 
 	public boolean hasMinRole(Guild guild, Member member, Long minRoleId) {
 		Role minRole = guild.getRoleById(minRoleId);
