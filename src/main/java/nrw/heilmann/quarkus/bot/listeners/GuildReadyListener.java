@@ -8,9 +8,9 @@ import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import nrw.heilmann.quarkus.bot.commands.SlashCommand;
-import nrw.heilmann.quarkus.bot.persistence.model.PenaltyType;
-import nrw.heilmann.quarkus.bot.persistence.repository.CommandRepository;
-import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyTypeRepository;
+import nrw.heilmann.quarkus.persistence.model.PenaltyType;
+import nrw.heilmann.quarkus.persistence.repository.CommandRepository;
+import nrw.heilmann.quarkus.persistence.repository.PenaltyTypeRepository;
 
 import java.util.List;
 

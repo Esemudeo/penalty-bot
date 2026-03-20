@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.modals.Modal;
 import nrw.heilmann.quarkus.bot.exceptions.NotInGuildException;
 import nrw.heilmann.quarkus.bot.permissions.RequiresCommandPermission;
-import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyRepository;
+import nrw.heilmann.quarkus.persistence.repository.PenaltyRepository;
 
 import java.time.YearMonth;
 import java.time.format.TextStyle;

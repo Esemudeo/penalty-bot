@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.modals.Modal;
 import nrw.heilmann.quarkus.bot.exceptions.NotInGuildException;
 import nrw.heilmann.quarkus.bot.permissions.RequiresCommandPermission;
-import nrw.heilmann.quarkus.bot.persistence.model.PenaltyType;
-import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyTypeRepository;
+import nrw.heilmann.quarkus.persistence.model.PenaltyType;
+import nrw.heilmann.quarkus.persistence.repository.PenaltyTypeRepository;
 
 import java.util.List;
 import java.util.Optional;

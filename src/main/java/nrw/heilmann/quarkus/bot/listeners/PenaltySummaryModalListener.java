@@ -6,10 +6,10 @@ import jakarta.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import nrw.heilmann.quarkus.bot.commands.PenaltySummaryCommand;
-import nrw.heilmann.quarkus.bot.persistence.model.GlobalGuildConfig;
-import nrw.heilmann.quarkus.bot.persistence.repository.GlobalGuildConfigRepository;
-import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyRepository;
-import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyRepository.PenaltyTypeSummary;
+import nrw.heilmann.quarkus.persistence.model.GlobalGuildConfig;
+import nrw.heilmann.quarkus.persistence.repository.GlobalGuildConfigRepository;
+import nrw.heilmann.quarkus.persistence.repository.PenaltyRepository;
+import nrw.heilmann.quarkus.persistence.repository.PenaltyRepository.PenaltyTypeSummary;
 
 import java.time.YearMonth;
 import java.time.format.TextStyle;

@@ -4,8 +4,8 @@ import io.agroal.api.AgroalDataSource;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import nrw.heilmann.quarkus.bot.persistence.model.Penalty;
-import nrw.heilmann.quarkus.bot.persistence.model.PenaltyType;
+import nrw.heilmann.quarkus.persistence.model.Penalty;
+import nrw.heilmann.quarkus.persistence.model.PenaltyType;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;

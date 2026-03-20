@@ -9,9 +9,9 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import nrw.heilmann.quarkus.bot.persistence.model.Command;
-import nrw.heilmann.quarkus.bot.persistence.model.CommandExplicitRole;
-import nrw.heilmann.quarkus.bot.persistence.repository.CommandRepository;
+import nrw.heilmann.quarkus.persistence.model.Command;
+import nrw.heilmann.quarkus.persistence.model.CommandExplicitRole;
+import nrw.heilmann.quarkus.persistence.repository.CommandRepository;
 import org.jboss.logging.Logger;
 
 import java.util.Optional;

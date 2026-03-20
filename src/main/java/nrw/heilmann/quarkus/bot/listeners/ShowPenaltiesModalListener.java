@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import nrw.heilmann.quarkus.bot.commands.ShowPenaltiesCommand;
-import nrw.heilmann.quarkus.bot.persistence.repository.PenaltyRepository;
+import nrw.heilmann.quarkus.persistence.repository.PenaltyRepository;
 
 import java.time.YearMonth;
 import java.time.format.TextStyle;

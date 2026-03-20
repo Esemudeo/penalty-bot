@@ -1,4 +1,4 @@
-package nrw.heilmann.quarkus.bot.persistence.model;
+package nrw.heilmann.quarkus.persistence.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.CascadeType;

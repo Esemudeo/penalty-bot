@@ -1,8 +1,8 @@
-package nrw.heilmann.quarkus.bot.persistence.repository;
+package nrw.heilmann.quarkus.persistence.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import nrw.heilmann.quarkus.bot.persistence.model.Command;
+import nrw.heilmann.quarkus.persistence.model.Command;
 
 import java.util.Optional;
 
