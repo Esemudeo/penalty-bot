@@ -84,11 +84,9 @@ Easily start your REST Web Services
 
 # TODOs
 
-- implement new commands
-- configuration concept for following stuff
+- configuration page for following stuff
     - penalty types
     - channel to use for messages
     - paypal link
     - roles for reporting, operating, managing
     - roles for receiving reports
-- configuration page with all of the above
