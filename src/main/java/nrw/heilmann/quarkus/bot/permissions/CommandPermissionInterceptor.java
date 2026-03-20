@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -54,7 +55,9 @@ public class CommandPermissionInterceptor {
 	}
 
 	private boolean isAllowed(Guild guild, Member member, String commandName) {
-		Optional<Command> configOpt = commandPermissionRepository.findByGuildAndCommand(guild.getIdLong(), commandName);
+		if (member.isOwner() || member.hasPermission(Permission.ADMINISTRATOR)) {
+			return true;
+		}
 
 		Optional<Command> commandOpt = commandPermissionRepository.findByGuildAndCommand(guild.getIdLong(), commandName);
 		if (commandOpt.isEmpty()) {
