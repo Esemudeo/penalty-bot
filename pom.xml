@@ -65,6 +65,18 @@
 			<artifactId>quarkus-flyway</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-rest-client-jackson</artifactId>
+		</dependency>
+
+		<!-- Vaadin für Quarkus -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-quarkus-extension</artifactId>
+			<version>24.10.0</version>
+		</dependency>
+
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>io.quarkus</groupId>

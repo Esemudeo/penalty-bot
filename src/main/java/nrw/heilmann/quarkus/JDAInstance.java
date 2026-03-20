@@ -5,8 +5,10 @@ import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import lombok.Getter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import nrw.heilmann.quarkus.bot.commands.PenaltySetupCommand;
 import nrw.heilmann.quarkus.bot.commands.PenaltySummaryCommand;
 import nrw.heilmann.quarkus.bot.commands.ReportPenaltyCommand;
 import nrw.heilmann.quarkus.bot.commands.ShowPenaltiesCommand;
@@ -21,6 +23,7 @@ import org.jboss.logging.Logger;
 @ApplicationScoped
 public class JDAInstance {
 
+	@Getter
 	private JDA jda;
 
 	@ConfigProperty(name = "discord.bot-token")
@@ -46,6 +49,9 @@ public class JDAInstance {
 
 	@Inject
 	PenaltySummaryCommand penaltySummaryCommand;
+
+	@Inject
+	PenaltySetupCommand penaltySetupCommand;
 
 	@Inject
 	PenaltySummaryModalListener penaltySummaryModalListener;
@@ -76,10 +82,12 @@ public class JDAInstance {
 	}
 
 	private void registerSlashCommands() {
+		jda.getGuilds().forEach(guild -> guild.updateCommands().queue());
 		jda.updateCommands()
 				.addCommands(reportPenaltyCommand.toCommandData())
 				.addCommands(showPenaltiesCommand.toCommandData())
 				.addCommands(penaltySummaryCommand.toCommandData())
+				.addCommands(penaltySetupCommand.toCommandData())
 				.queue();
 	}
 
