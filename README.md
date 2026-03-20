@@ -85,7 +85,6 @@ Easily start your REST Web Services
 # TODOs
 
 - implement new commands
-- some messages have to disappear
 - configuration concept for following stuff
     - penalty types
     - channel to use for messages
