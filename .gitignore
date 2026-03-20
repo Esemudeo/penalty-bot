@@ -43,3 +43,16 @@ nb-configuration.xml
 /.quarkus/cli/plugins/
 # TLS Certificates
 .certs/
+
+# Vaadin
+node_modules/
+package.json
+package-lock.json
+pnpm-lock.yaml
+webpack.config.js
+webpack.generated.js
+tsconfig.json
+types.d.ts
+frontend/generated/
+src/main/frontend/
+.vaadin/
