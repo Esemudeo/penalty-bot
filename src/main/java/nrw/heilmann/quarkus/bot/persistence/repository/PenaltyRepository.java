@@ -41,6 +41,27 @@ public class PenaltyRepository {
 				.collect(Collectors.groupingBy(PenaltyAmountByType::displayName, Collectors.summingInt(PenaltyAmountByType::amount)));
 	}
 
+	public Map<Long, List<PenaltyTypeSummary>> aggregateByMonthForAllUsers(long guildId, YearMonth yearMonth) {
+		Instant startOfMonthInclusive = yearMonth.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+		Instant endOfMonthExclusive = yearMonth.plusMonths(1).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+		List<Penalty> allPenaltiesOfMonth =
+				Penalty.list("guildId = ?1 and timestamp >= ?2 and timestamp < ?3", guildId, startOfMonthInclusive, endOfMonthExclusive);
+		return allPenaltiesOfMonth
+				.stream()
+				.collect(Collectors.groupingBy(
+						Penalty::getAffectedMemberId,
+						Collectors.collectingAndThen(
+								Collectors.groupingBy(Penalty::getPenaltyType),
+								typeMap -> typeMap.entrySet().stream()
+										.map(e -> {
+											int total = e.getValue().stream().mapToInt(Penalty::getAmount).sum();
+											Integer price = e.getKey().getPrice() != null ? total * e.getKey().getPrice() : null;
+											return new PenaltyTypeSummary(e.getKey().getDisplayName(), total, price);
+										})
+										.filter(s -> s.totalAmount() > 0)
+										.toList())));
+	}
+
 	public List<YearMonth> findAvailableMonthsForGuild(long guildId, int limit) {
 		return Penalty.<Penalty>find("guildId = ?1 ORDER BY timestamp DESC", guildId)
 				.stream()
@@ -51,4 +72,6 @@ public class PenaltyRepository {
 	}
 
 	record PenaltyAmountByType(String displayName, int amount) {}
+
+	public record PenaltyTypeSummary(String displayName, int totalAmount, Integer totalPriceCents) {}
 }

@@ -7,9 +7,11 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import nrw.heilmann.quarkus.bot.commands.PenaltySummaryCommand;
 import nrw.heilmann.quarkus.bot.commands.ReportPenaltyCommand;
 import nrw.heilmann.quarkus.bot.commands.ShowPenaltiesCommand;
 import nrw.heilmann.quarkus.bot.listeners.GuildReadyListener;
+import nrw.heilmann.quarkus.bot.listeners.PenaltySummaryModalListener;
 import nrw.heilmann.quarkus.bot.listeners.ReportPenaltyModalListener;
 import nrw.heilmann.quarkus.bot.listeners.ShowPenaltiesModalListener;
 import nrw.heilmann.quarkus.bot.listeners.SlashCommandListener;
@@ -43,6 +45,12 @@ public class JDAInstance {
 	ShowPenaltiesModalListener showPenaltiesModalListener;
 
 	@Inject
+	PenaltySummaryCommand penaltySummaryCommand;
+
+	@Inject
+	PenaltySummaryModalListener penaltySummaryModalListener;
+
+	@Inject
 	Logger log;
 
 
@@ -55,7 +63,8 @@ public class JDAInstance {
 
 		try {
 			jda = JDABuilder.createDefault(discordToken)
-					.addEventListeners(guildReadyListener, slashCommandListener, reportPenaltyModalListener, showPenaltiesModalListener)
+					.addEventListeners(guildReadyListener, slashCommandListener, reportPenaltyModalListener, showPenaltiesModalListener,
+							penaltySummaryModalListener)
 					.build();
 			jda.awaitReady();
 		} catch (InterruptedException e) {
@@ -70,6 +79,7 @@ public class JDAInstance {
 		jda.updateCommands()
 				.addCommands(reportPenaltyCommand.toCommandData())
 				.addCommands(showPenaltiesCommand.toCommandData())
+				.addCommands(penaltySummaryCommand.toCommandData())
 				.queue();
 	}
 
