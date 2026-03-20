@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import nrw.heilmann.quarkus.bot.persistence.model.Penalty;
 import nrw.heilmann.quarkus.bot.persistence.model.PenaltyType;
-import org.hibernate.Hibernate;
 
 import java.time.Instant;
 import java.time.YearMonth;
@@ -25,10 +24,9 @@ public class PenaltyRepository {
 		if (penaltyType.isEmpty()) {
 			return Optional.empty();
 		}
-		Penalty managed = penalty.toBuilder().penaltyType(penaltyType.get()).build();
-		managed.persist();
-		Hibernate.initialize(managed.getPenaltyType());
-		return Optional.of(managed);
+		Penalty penaltyToPersist = penalty.toBuilder().penaltyType(penaltyType.get()).build();
+		penaltyToPersist.persist();
+		return Optional.of(penaltyToPersist);
 	}
 
 	public Map<String, Integer> aggregateByMonth(long guildId, YearMonth yearMonth, long userId) {
