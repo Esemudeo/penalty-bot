@@ -25,4 +25,5 @@ public class PenaltyType extends PanacheEntity {
 	private @Nonnull String displayName;
 	@Column(name = "is_default")
 	private boolean defaultType;
+	private Integer price;
 }
