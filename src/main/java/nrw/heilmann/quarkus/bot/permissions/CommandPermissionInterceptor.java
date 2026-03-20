@@ -56,20 +56,20 @@ public class CommandPermissionInterceptor {
 	private boolean isAllowed(Guild guild, Member member, String commandName) {
 		Optional<Command> configOpt = commandPermissionRepository.findByGuildAndCommand(guild.getIdLong(), commandName);
 
-		if (configOpt.isEmpty()) {
+		Optional<Command> commandOpt = commandPermissionRepository.findByGuildAndCommand(guild.getIdLong(), commandName);
+		if (commandOpt.isEmpty()) {
 			LOG.debug("No permission config for guild=%d command=%s; DENY_IF_UNCONFIGURED=%b"
 					.formatted(guild.getIdLong(), commandName, DENY_IF_UNCONFIGURED));
 			return !DENY_IF_UNCONFIGURED;
 		}
 
-		Command config = configOpt.get();
-
-		if (config.getMinRoleId() != null && permissionService.hasMinRole(guild, member, config.getMinRoleId())) {
+		Command command = commandOpt.get();
+		if (command.getMinRoleId() != null && permissionService.hasMinRole(guild, member, command.getMinRoleId())) {
 			return true;
 		}
 
 		return permissionService.hasExplicitRole(member,
-				config.getExplicitRoles().stream().map(CommandExplicitRole::getRoleId).toList());
+				command.getExplicitRoles().stream().map(CommandExplicitRole::getRoleId).toList());
 	}
 
 	private static SlashCommandInteractionEvent findEvent(InvocationContext ctx) {
