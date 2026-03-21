@@ -75,6 +75,14 @@ public class PenaltyTypeRepository {
         PenaltyType.update("active = false, defaultType = false where id = ?1 and guildId = ?2", id, guildId);
     }
 
+    /**
+     * Deletes a penalty type if it is not referenced by any penalty. Throws a PersistenceException if it is.
+     * guildId is included in the WHERE clause – a mismatched ID silently affects nothing.
+     */
+    public void delete(long id, long guildId) {
+        PenaltyType.delete("id = ?1 and guildId = ?2", id, guildId);
+    }
+
     private void unsetDefaultForGuild(long guildId) {
         PenaltyType.update("defaultType = false where guildId = ?1", guildId);
     }

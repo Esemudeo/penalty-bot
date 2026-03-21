@@ -38,7 +38,7 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (!authSession.isAuthenticated()) {
+        if (authSession.isNotAuthenticated()) {
             if (!tryAuthenticateFromToken(event)) {
                 return;
             }

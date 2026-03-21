@@ -2,6 +2,8 @@ package com.esemudeo.quarkus.penaltybot.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.PersistenceException;
+import com.esemudeo.quarkus.penaltybot.JDAInstance;
 import com.esemudeo.quarkus.penaltybot.persistence.model.Command;
 import com.esemudeo.quarkus.penaltybot.persistence.model.GlobalGuildConfig;
 import com.esemudeo.quarkus.penaltybot.persistence.model.PenaltyType;
@@ -47,8 +49,13 @@ public class SettingsService {
         penaltyTypeRepository.update(id, guildId(), displayName, isDefault, price);
     }
 
-    public void deactivatePenaltyType(long id) {
-        penaltyTypeRepository.deactivate(id, guildId());
+    public void makePenaltyTypeUnusable(long id) {
+        long guildId = guildId();
+        try {
+            penaltyTypeRepository.delete(id, guildId);
+        } catch (PersistenceException e) {
+            penaltyTypeRepository.deactivate(id, guildId);
+        }
     }
 
     // --- Command permissions ---
@@ -57,11 +64,11 @@ public class SettingsService {
         return commandRepository.findAllByGuild(guildId());
     }
 
-    public void updateMinRole(String commandName, Long minRoleId) {
+    public void updateCommandMinRole(String commandName, Long minRoleId) {
         commandRepository.updateMinRole(guildId(), commandName, minRoleId);
     }
 
-    public void setExplicitRoles(String commandName, List<Long> roleIds) {
+    public void replaceCommandExplicitRoles(String commandName, List<Long> roleIds) {
         commandRepository.setExplicitRoles(guildId(), commandName, roleIds);
     }
 
@@ -71,14 +78,14 @@ public class SettingsService {
         return globalGuildConfigRepository.findByGuild(guildId());
     }
 
-    public void updatePaypalMeUsername(String username) {
-        globalGuildConfigRepository.upsertPaypalMeUsername(guildId(), username);
+    public void updatePaypalMeUsername(String paypalUsername) {
+        globalGuildConfigRepository.upsertPaypalMeUsername(guildId(), paypalUsername);
     }
 
     // ---
 
     private long guildId() {
-        if (!authSession.isAuthenticated()) {
+        if (authSession.isNotAuthenticated()) {
             throw new SettingsAccessDeniedException("Not authenticated");
         }
         return authSession.getGuildId();

@@ -15,8 +15,8 @@ public class AuthSession {
     private static final String KEY_USER_ID = "auth.userId";
     private static final String KEY_GUILD_ID = "auth.guildId";
 
-    public boolean isAuthenticated() {
-        return getUserId() != null && getGuildId() != null;
+    public boolean isNotAuthenticated() {
+        return getUserId() == null || getGuildId() == null;
     }
 
     public Long getUserId() {
