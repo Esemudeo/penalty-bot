@@ -10,6 +10,7 @@ import com.esemudeo.quarkus.penaltybot.persistence.model.PenaltyType;
 import com.esemudeo.quarkus.penaltybot.persistence.repository.CommandRepository;
 import com.esemudeo.quarkus.penaltybot.persistence.repository.GlobalGuildConfigRepository;
 import com.esemudeo.quarkus.penaltybot.persistence.repository.PenaltyTypeRepository;
+import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,24 @@ public class SettingsService {
 
     @Inject
     GlobalGuildConfigRepository globalGuildConfigRepository;
+
+    @Inject
+    JDAInstance jdaInstance;
+
+    // --- Guild roles ---
+
+    public record GuildRole(long id, String name) {}
+
+    public List<GuildRole> getGuildRoles() {
+        Guild guild = jdaInstance.getJda().getGuildById(guildId());
+        if (guild == null) {
+            return List.of();
+        }
+        // getRoles() returns roles sorted highest to lowest by position
+        return guild.getRoles().stream()
+                .map(r -> new GuildRole(r.getIdLong(), r.getName()))
+                .toList();
+    }
 
     // --- Penalty types ---
 
