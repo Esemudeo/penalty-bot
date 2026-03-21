@@ -13,7 +13,10 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import java.net.URI;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.UUID;
 
 @Path("/oauth/callback")
 public class OAuthCallbackResource {
@@ -85,6 +88,17 @@ public class OAuthCallbackResource {
 
         sessionToken.setUsed(true);
 
-        return Response.seeOther(URI.create("/settings?userId=" + discordUserId + "&guildId=" + sessionToken.getGuildId())).build();
+        // Create a short-lived settings-access token. The SettingsView validates it,
+        // writes userId + guildId into the VaadinSession, then discards the token.
+        String settingsToken = UUID.randomUUID().toString();
+        configSessionTokenRepository.save(ConfigSessionToken.builder()
+				.guildId(sessionToken.getGuildId())
+				.userId(discordUserId)
+                .token(settingsToken)
+                .expiresAt(Instant.now().plus(1, ChronoUnit.HOURS))
+                .used(false)
+                .build());
+
+        return Response.seeOther(URI.create("/settings?token=" + settingsToken)).build();
     }
 }

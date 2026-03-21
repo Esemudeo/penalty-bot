@@ -16,6 +16,10 @@ public class ConfigSessionTokenRepository {
 				.firstResultOptional();
 	}
 
+	public void markAsUsed(String token) {
+		ConfigSessionToken.update("used = true where token = ?1", token);
+	}
+
 	public void invalidateAllForUser(long userId) {
 		ConfigSessionToken.delete("userId = ?1", userId);
 	}
