@@ -1,81 +1,85 @@
 package com.esemudeo.quarkus.penaltybot.web.view;
 
+import com.esemudeo.quarkus.penaltybot.web.AuthSession;
+import com.esemudeo.quarkus.penaltybot.web.SettingsService;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.ComboBoxBase;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import jakarta.inject.Inject;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import com.esemudeo.quarkus.penaltybot.JDAInstance;
-import com.esemudeo.quarkus.penaltybot.persistence.model.ConfigSessionToken;
-import com.esemudeo.quarkus.penaltybot.persistence.repository.ConfigSessionTokenRepository;
-import com.esemudeo.quarkus.penaltybot.web.AuthSession;
 
 import java.util.List;
-import java.util.Map;
 
 @Route("settings")
 public class SettingsView extends VerticalLayout implements BeforeEnterObserver {
 
-    @Inject
-    JDAInstance jdaInstance;
+	private static final String DISCORD_DEFAULT_ROLE_COLOR = "#99AAB5";
 
-    @Inject
-    AuthSession authSession;
+	@Inject
+	AuthSession authSession;
 
-    @Inject
-    ConfigSessionTokenRepository configSessionTokenRepository;
+	@Inject
+	SettingsService settingsService;
 
-    private final H2 welcomeHeading = new H2();
+	private final H2 welcomeHeading = new H2();
+	private final Paragraph welcomeParagraph = new Paragraph();
+	private final MultiSelectComboBox<SettingsService.GuildRole> reportPenaltyExplicitRolesComboBox = new MultiSelectComboBox<>("Explicit roles");
+	private final ComboBox<SettingsService.GuildRole> reportPenaltyMinRoleComboBox = new ComboBox<>("Minimum role");
 
-    public SettingsView() {
-        add(welcomeHeading);
-        add(new Paragraph("Configuration options will be available here."));
-    }
+	public SettingsView() {
+		configureRolesComboBox(reportPenaltyExplicitRolesComboBox);
+		configureRolesComboBox(reportPenaltyMinRoleComboBox);
+		add(welcomeHeading, welcomeParagraph, reportPenaltyExplicitRolesComboBox, reportPenaltyMinRoleComboBox);
+	}
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        if (authSession.isNotAuthenticated()) {
-            if (!tryAuthenticateFromToken(event)) {
-                return;
-            }
-        }
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		if (authSession.isNotAuthenticated()) {
+			if (!tryAuthenticateFromToken(event)) {
+				return;
+			}
+		}
 
-        try {
-            Guild guild = jdaInstance.getJda().getGuildById(authSession.getGuildId());
-            if (guild == null) {
-                event.forwardTo(ErrorView.class);
-                return;
-            }
+		try {
+			welcomeHeading.setText("Penalty Bot Server Settings – %s".formatted(settingsService.getGuildName()));
+			welcomeParagraph.setText("Welcome, %s, to the server settings for the penalty bot!".formatted(settingsService.getMemberDisplayName()));
+			reportPenaltyExplicitRolesComboBox.setItems(settingsService.getGuildRoles());
+			reportPenaltyMinRoleComboBox.setItems(settingsService.getGuildRoles());
+		} catch (Exception e) {
+			event.forwardTo(ErrorView.class);
+		}
+	}
 
-            Member member = guild.retrieveMemberById(authSession.getUserId()).complete();
-            welcomeHeading.setText("Server Settings – " + member.getEffectiveName());
-        } catch (Exception e) {
-            event.forwardTo(ErrorView.class);
-        }
-    }
+	private <C extends ComboBoxBase<C, SettingsService.GuildRole, ?>> void configureRolesComboBox(C comboBox) {
+		comboBox.setItemLabelGenerator(SettingsService.GuildRole::name);
+		comboBox.setRenderer(new ComponentRenderer<>(role -> {
+			Span dot = new Span();
+			dot.getStyle()
+					.set("display", "inline-block")
+					.set("width", "10px").set("height", "10px")
+					.set("border-radius", "50%")
+					.set("background-color", role.hexColor() != null ? role.hexColor() : DISCORD_DEFAULT_ROLE_COLOR)
+					.set("margin-right", "8px")
+					.set("flex-shrink", "0");
+			return new Span(dot, new Span(role.name()));
+		}));
+		comboBox.setWidthFull();
+	}
 
-    /** Validates the one-time settings-access token from the URL, populates AuthSession, returns false on failure. */
-    private boolean tryAuthenticateFromToken(BeforeEnterEvent event) {
-        Map<String, List<String>> params = event.getLocation().getQueryParameters().getParameters();
-        List<String> tokens = params.get("token");
-        if (tokens == null || tokens.isEmpty()) {
-            event.forwardTo(ErrorView.class);
-            return false;
-        }
-
-        ConfigSessionToken token = configSessionTokenRepository.findValidByToken(tokens.getFirst()).orElse(null);
-        if (token == null) {
-            event.forwardTo(ErrorView.class);
-            return false;
-        }
-
-        configSessionTokenRepository.markAsUsed(token.getToken());
-        authSession.setUserId(token.getUserId());
-        authSession.setGuildId(token.getGuildId());
-        return true;
-    }
+	/** Validates the one-time settings-access token from the URL, populates AuthSession, returns false on failure. */
+	private boolean tryAuthenticateFromToken(BeforeEnterEvent event) {
+		List<String> tokens = event.getLocation().getQueryParameters().getParameters().get("token");
+		if (tokens == null || tokens.isEmpty() || !settingsService.authenticateWithToken(tokens.getFirst())) {
+			event.forwardTo(ErrorView.class);
+			return false;
+		}
+		return true;
+	}
 }

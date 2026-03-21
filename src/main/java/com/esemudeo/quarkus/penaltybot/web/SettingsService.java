@@ -7,13 +7,19 @@ import com.esemudeo.quarkus.penaltybot.JDAInstance;
 import com.esemudeo.quarkus.penaltybot.persistence.model.Command;
 import com.esemudeo.quarkus.penaltybot.persistence.model.GlobalGuildConfig;
 import com.esemudeo.quarkus.penaltybot.persistence.model.PenaltyType;
+import com.esemudeo.quarkus.penaltybot.persistence.model.ConfigSessionToken;
 import com.esemudeo.quarkus.penaltybot.persistence.repository.CommandRepository;
+import com.esemudeo.quarkus.penaltybot.persistence.repository.ConfigSessionTokenRepository;
 import com.esemudeo.quarkus.penaltybot.persistence.repository.GlobalGuildConfigRepository;
 import com.esemudeo.quarkus.penaltybot.persistence.repository.PenaltyTypeRepository;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.RoleColors;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Service layer between the Vaadin settings UI and the repositories.
@@ -39,9 +45,41 @@ public class SettingsService {
     @Inject
     JDAInstance jdaInstance;
 
+    @Inject
+    ConfigSessionTokenRepository configSessionTokenRepository;
+
+    // --- Authentication ---
+
+    public boolean authenticateWithToken(String token) {
+        ConfigSessionToken sessionToken = configSessionTokenRepository.findValidByToken(token).orElse(null);
+        if (sessionToken == null) {
+            return false;
+        }
+        configSessionTokenRepository.markAsUsed(sessionToken.getToken());
+        authSession.setUserId(sessionToken.getUserId());
+        authSession.setGuildId(sessionToken.getGuildId());
+        return true;
+    }
+
+    public String getGuildName() {
+        Guild guild = jdaInstance.getJda().getGuildById(guildId());
+        if (guild == null) {
+            throw new IllegalStateException("Guild not found");
+        }
+        return guild.getName();
+    }
+
+    public String getMemberDisplayName() {
+        Guild guild = jdaInstance.getJda().getGuildById(guildId());
+        if (guild == null) {
+            throw new IllegalStateException("Guild not found");
+        }
+        return guild.retrieveMemberById(authSession.getUserId()).complete().getEffectiveName();
+    }
+
     // --- Guild roles ---
 
-    public record GuildRole(long id, String name) {}
+    public record GuildRole(long id, String name, String hexColor) {}
 
     public List<GuildRole> getGuildRoles() {
         Guild guild = jdaInstance.getJda().getGuildById(guildId());
@@ -50,8 +88,17 @@ public class SettingsService {
         }
         // getRoles() returns roles sorted highest to lowest by position
         return guild.getRoles().stream()
-                .map(r -> new GuildRole(r.getIdLong(), r.getName()))
+                .filter(Predicate.not(Role::isManaged))
+                .map(r -> new GuildRole(r.getIdLong(), r.getName(), roleHexColor(r)))
                 .toList();
+    }
+
+    private String roleHexColor(Role role) {
+        RoleColors colors = role.getColors();
+        if (colors.isDefault()) {
+            return null;
+        }
+        return String.format("#%06X", colors.getPrimaryRaw() & 0xFFFFFF);
     }
 
     // --- Penalty types ---
