@@ -8,11 +8,8 @@ import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import com.esemudeo.quarkus.penaltybot.bot.commands.SlashCommand;
-import com.esemudeo.quarkus.penaltybot.persistence.model.PenaltyType;
 import com.esemudeo.quarkus.penaltybot.persistence.repository.CommandRepository;
 import com.esemudeo.quarkus.penaltybot.persistence.repository.PenaltyTypeRepository;
-
-import java.util.List;
 
 @ApplicationScoped
 public class GuildReadyListener extends ListenerAdapter {
@@ -34,10 +31,7 @@ public class GuildReadyListener extends ListenerAdapter {
 	}
 
 	private void provideDefaultPenaltyTypes(long guildId) {
-		List<PenaltyType> allPenaltyTypes = penaltyTypeRepository.findByGuild(guildId);
-		if (allPenaltyTypes.isEmpty()) {
-			penaltyTypeRepository.persistIfAbsent(guildId, "teamkill", "Teamkill", /* defaultType= */ true);
-		}
+		penaltyTypeRepository.createDefaultIfNoneExist(guildId);
 	}
 
 	private void provideDefaultCommandPermissions(long guildId) {

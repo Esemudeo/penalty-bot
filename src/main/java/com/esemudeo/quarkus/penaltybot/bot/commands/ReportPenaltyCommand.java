@@ -61,7 +61,7 @@ public class ReportPenaltyCommand extends SlashCommand {
 					.setRequired(true)
 					.build();
 
-			List<PenaltyType> penaltyTypes = penaltyTypeRepository.findByGuild(guildId);
+			List<PenaltyType> penaltyTypes = penaltyTypeRepository.findActiveByGuild(guildId);
 			List<SelectOption> allPenaltyTypes = penaltyTypes.stream()
 					.map(pt -> SelectOption.of(pt.getDisplayName(), pt.getTechnicalName()))
 					.toList();

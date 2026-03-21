@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
@@ -17,13 +18,19 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "penalty_type")
 public class PenaltyType extends PanacheEntity {
-	@Column(name = "guild_id")
+	@Column(name = "guild_id", nullable = false)
 	private @Nonnull Long guildId;
-	@Column(name = "technical_name")
+	@Column(name = "technical_name", nullable = false)
 	private @Nonnull String technicalName;
-	@Column(name = "display_name")
+	@Column(name = "display_name", nullable = false)
 	private @Nonnull String displayName;
-	@Column(name = "is_default")
+	@Setter
+	@Column(name = "is_default", nullable = false)
 	private boolean defaultType;
+	@Setter
+	@Column(name = "price")
 	private Integer price;
+	@Setter
+	@Column(name = "active", nullable = false)
+	private boolean active;
 }

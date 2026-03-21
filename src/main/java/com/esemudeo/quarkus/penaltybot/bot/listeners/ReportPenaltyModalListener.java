@@ -12,6 +12,7 @@ import com.esemudeo.quarkus.penaltybot.persistence.repository.PenaltyRepository;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 @ApplicationScoped
 public class ReportPenaltyModalListener extends ModalListener implements MemberModalTrait {
@@ -52,13 +53,13 @@ public class ReportPenaltyModalListener extends ModalListener implements MemberM
 				.amount(amount)
 				.build();
 
-		Penalty penalty = penaltyRepository.save(penaltyDraft, penaltyTypeName).orElse(null);
-		if (penalty == null) {
+		Optional<Penalty> penalty = penaltyRepository.save(penaltyDraft, penaltyTypeName);
+		if (penalty.isEmpty()) {
 			event.reply("Unknown penalty type: " + penaltyTypeName).setEphemeral(true).queue();
 			return;
 		}
 
-		event.reply("Reported %d x %s for %s.".formatted(amount, penalty.getPenaltyType().getDisplayName(), affectedMember.getEffectiveName()))
+		event.reply("Reported %d x %s for %s.".formatted(amount, penalty.get().getPenaltyType().getDisplayName(), affectedMember.getEffectiveName()))
 				.queue();
 	}
 }

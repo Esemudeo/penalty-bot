@@ -9,6 +9,8 @@ ALTER SEQUENCE command_permission_explicit_role_seq RENAME TO command_explicit_r
 -- rename constraints
 ALTER TABLE command
     RENAME CONSTRAINT pk_command_permission TO pk_command;
+ALTER TABLE command_explicit_role
+    RENAME COLUMN command_permission_id TO command_id;
 ALTER TABLE command
     RENAME CONSTRAINT uq_command_permission_guild_command TO uq_command_guild_command;
 ALTER TABLE command_explicit_role

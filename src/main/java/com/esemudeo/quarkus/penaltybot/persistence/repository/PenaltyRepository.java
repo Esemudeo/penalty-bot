@@ -1,6 +1,7 @@
 package com.esemudeo.quarkus.penaltybot.persistence.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import com.esemudeo.quarkus.penaltybot.persistence.model.Penalty;
 import com.esemudeo.quarkus.penaltybot.persistence.model.PenaltyType;
@@ -17,10 +18,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class PenaltyRepository {
 
+	@Inject
+	PenaltyTypeRepository penaltyTypeRepository;
+
 	public Optional<Penalty> save(Penalty penalty, String penaltyTypeName) {
-		Optional<PenaltyType> penaltyType = PenaltyType
-				.find("guildId = ?1 and technicalName = ?2", penalty.getGuildId(), penaltyTypeName)
-				.firstResultOptional();
+		Optional<PenaltyType> penaltyType = penaltyTypeRepository.findByGuildAndTechnicalName(penalty.getGuildId(), penaltyTypeName);
 		if (penaltyType.isEmpty()) {
 			return Optional.empty();
 		}
