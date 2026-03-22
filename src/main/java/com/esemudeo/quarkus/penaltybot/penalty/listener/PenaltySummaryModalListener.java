@@ -1,16 +1,16 @@
 package com.esemudeo.quarkus.penaltybot.penalty.listener;
 
+import com.esemudeo.quarkus.penaltybot.configuration.global.model.GlobalGuildConfig;
+import com.esemudeo.quarkus.penaltybot.configuration.global.repository.GlobalGuildConfigRepository;
+import com.esemudeo.quarkus.penaltybot.penalty.command.PenaltySummaryCommand;
+import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository;
+import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository.PenaltyTypeSummary;
+import com.esemudeo.quarkus.penaltybot.shared.listener.ModalListener;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import com.esemudeo.quarkus.penaltybot.shared.listener.ModalListener;
-import com.esemudeo.quarkus.penaltybot.penalty.command.PenaltySummaryCommand;
-import com.esemudeo.quarkus.penaltybot.configuration.global.model.GlobalGuildConfig;
-import com.esemudeo.quarkus.penaltybot.configuration.global.repository.GlobalGuildConfigRepository;
-import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository;
-import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository.PenaltyTypeSummary;
 
 import java.time.YearMonth;
 import java.time.format.TextStyle;
@@ -80,7 +80,7 @@ public class PenaltySummaryModalListener extends ModalListener implements YearMo
 				String euroAmount = "%.2f".formatted(totalCents / 100.0);
 				block.append("Total: €").append(euroAmount);
 				paypalUsername.ifPresent(username ->
-						block.append(" → https://paypal.me/").append(username).append("/").append(euroAmount).append("EUR"));
+						block.append(" → <https://paypal.me/").append(username).append("/").append(euroAmount).append("EUR>"));
 				block.append("\n");
 			}
 
