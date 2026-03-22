@@ -1,5 +1,6 @@
 package com.esemudeo.quarkus.penaltybot.bot.commands;
 
+import com.esemudeo.quarkus.penaltybot.penalty.command.ReportPenaltyCommand;
 import io.quarkus.test.junit.QuarkusTest;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

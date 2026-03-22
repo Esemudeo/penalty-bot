@@ -1,11 +1,11 @@
 package com.esemudeo.quarkus.penaltybot.persistence;
 
+import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
+import com.esemudeo.quarkus.penaltybot.penalty.model.Penalty;
 import io.agroal.api.AgroalDataSource;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import com.esemudeo.quarkus.penaltybot.persistence.model.Penalty;
-import com.esemudeo.quarkus.penaltybot.persistence.model.PenaltyType;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
