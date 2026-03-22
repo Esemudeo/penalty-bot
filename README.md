@@ -90,3 +90,4 @@ Easily start your REST Web Services
     - paypal link
     - roles for reporting, operating, managing
     - roles for receiving reports
+- context menu for commands
