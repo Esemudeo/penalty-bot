@@ -1,13 +1,14 @@
 package com.esemudeo.quarkus.penaltybot.penalty.repository;
 
+import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
+import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.repository.PenaltyTypeRepository;
+import com.esemudeo.quarkus.penaltybot.penalty.model.Penalty;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import com.esemudeo.quarkus.penaltybot.penalty.model.Penalty;
-import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
-import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.repository.PenaltyTypeRepository;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -66,11 +67,11 @@ public class PenaltyRepository {
 	}
 
 	public List<YearMonth> findAvailableMonthsForGuild(long guildId, int limit) {
-		return Penalty.<Penalty>find("guildId = ?1 ORDER BY timestamp DESC", guildId)
+		Instant xMonthsAgo = LocalDateTime.now(ZoneOffset.UTC).minusMonths(limit).toInstant(ZoneOffset.UTC);
+		return Penalty.<Penalty>find("guildId = ?1 and timestamp >= ?2 ORDER BY timestamp DESC", guildId, xMonthsAgo)
 				.stream()
 				.map(p -> YearMonth.from(p.getTimestamp().atZone(ZoneOffset.UTC)))
 				.distinct()
-				.limit(limit)
 				.toList();
 	}
 
