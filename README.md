@@ -90,4 +90,5 @@ Easily start your REST Web Services
     - paypal link
     - roles for reporting, operating, managing
     - roles for receiving reports
-- context menu for commands
+- be able to reset selected roles in multi selects
+- be able to use other channel for responses
