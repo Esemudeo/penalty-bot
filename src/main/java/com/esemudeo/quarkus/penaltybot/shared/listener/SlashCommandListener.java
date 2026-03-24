@@ -19,7 +19,7 @@ public class SlashCommandListener extends ListenerAdapter {
 		slashCommands.stream()
 				.filter(command -> command.getName().equals(event.getName()))
 				.findFirst()
-				.ifPresent(command -> command.handleCommand(event));
+				.ifPresent(command -> command.handleSlashCommand(event));
 
 	}
 }

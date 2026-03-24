@@ -4,14 +4,14 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public abstract class SlashCommand {
-	public abstract String getName();
+public interface SlashCommand extends GuildCommand {
+	String getName();
 
-	protected abstract String getDescription();
+	String getHelpDescription();
 
-	public final CommandData toCommandData() {
-		return Commands.slash(getName(), getDescription());
+	default CommandData toSlashCommandData() {
+		return Commands.slash(getName(), getHelpDescription());
 	}
 
-	public abstract void handleCommand(SlashCommandInteractionEvent event);
+	void handleSlashCommand(SlashCommandInteractionEvent event);
 }

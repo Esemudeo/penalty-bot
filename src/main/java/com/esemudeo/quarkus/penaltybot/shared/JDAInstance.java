@@ -17,6 +17,7 @@ import com.esemudeo.quarkus.penaltybot.penalty.listener.PenaltySummaryModalListe
 import com.esemudeo.quarkus.penaltybot.penalty.listener.ReportPenaltyModalListener;
 import com.esemudeo.quarkus.penaltybot.penalty.listener.ShowPenaltiesModalListener;
 import com.esemudeo.quarkus.penaltybot.shared.listener.SlashCommandListener;
+import com.esemudeo.quarkus.penaltybot.shared.listener.UserContextMenuCommandListener;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -34,6 +35,9 @@ public class JDAInstance {
 
 	@Inject
 	SlashCommandListener slashCommandListener;
+
+	@Inject
+	UserContextMenuCommandListener userContextMenuCommandListener;
 
 	@Inject
 	ReportPenaltyCommand reportPenaltyCommand;
@@ -69,8 +73,8 @@ public class JDAInstance {
 
 		try {
 			jda = JDABuilder.createDefault(discordToken)
-					.addEventListeners(guildReadyListener, slashCommandListener, reportPenaltyModalListener, showPenaltiesModalListener,
-							penaltySummaryModalListener)
+					.addEventListeners(guildReadyListener, slashCommandListener, userContextMenuCommandListener,
+							reportPenaltyModalListener, showPenaltiesModalListener, penaltySummaryModalListener)
 					.build();
 			jda.awaitReady();
 		} catch (InterruptedException e) {
@@ -78,16 +82,18 @@ public class JDAInstance {
 		}
 		log.info("✓ JDA is ready!");
 
-		registerSlashCommands();
+		registerCommands();
 	}
 
-	private void registerSlashCommands() {
+	private void registerCommands() {
 		jda.getGuilds().forEach(guild -> guild.updateCommands().queue());
 		jda.updateCommands()
-				.addCommands(reportPenaltyCommand.toCommandData())
-				.addCommands(showPenaltiesCommand.toCommandData())
-				.addCommands(penaltySummaryCommand.toCommandData())
-				.addCommands(penaltySetupCommand.toCommandData())
+				.addCommands(reportPenaltyCommand.toSlashCommandData())
+				.addCommands(reportPenaltyCommand.toContextMenuCommandData())
+				.addCommands(showPenaltiesCommand.toSlashCommandData())
+				.addCommands(showPenaltiesCommand.toContextMenuCommandData())
+				.addCommands(penaltySummaryCommand.toSlashCommandData())
+				.addCommands(penaltySetupCommand.toSlashCommandData())
 				.queue();
 	}
 

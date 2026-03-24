@@ -8,10 +8,12 @@ import jakarta.interceptor.InvocationContext;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import com.esemudeo.quarkus.penaltybot.configuration.commandpermission.model.CommandExplicitRole;
 import com.esemudeo.quarkus.penaltybot.configuration.commandpermission.model.CommandPermission;
 import com.esemudeo.quarkus.penaltybot.configuration.commandpermission.repository.CommandRepository;
+import com.esemudeo.quarkus.penaltybot.shared.command.UserContextMenuCommand;
 import org.jboss.logging.Logger;
 
 import java.util.Optional;
@@ -33,7 +35,7 @@ public class CommandPermissionInterceptor {
 
 	@AroundInvoke
 	public Object checkPermission(InvocationContext ctx) throws Exception {
-		SlashCommandInteractionEvent event = findEvent(ctx);
+		GenericCommandInteractionEvent event = findEvent(ctx);
 		if (event == null) {
 			return ctx.proceed();
 		}
@@ -46,7 +48,11 @@ public class CommandPermissionInterceptor {
 			return null;
 		}
 
-		if (!isAllowed(guild, member, event.getName())) {
+		String commandName = ctx.getTarget() instanceof UserContextMenuCommand c
+				? c.getName()
+				: event.getName();
+
+		if (!isAllowed(guild, member, commandName)) {
 			event.reply("You do not have permission to use this command.").setEphemeral(true).queue();
 			return null;
 		}
@@ -75,9 +81,9 @@ public class CommandPermissionInterceptor {
 				command.getExplicitRoles().stream().map(CommandExplicitRole::getRoleId).toList());
 	}
 
-	private static SlashCommandInteractionEvent findEvent(InvocationContext ctx) {
+	private static GenericCommandInteractionEvent findEvent(InvocationContext ctx) {
 		for (Object param : ctx.getParameters()) {
-			if (param instanceof SlashCommandInteractionEvent e) {
+			if (param instanceof GenericCommandInteractionEvent e) {
 				return e;
 			}
 		}

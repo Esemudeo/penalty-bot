@@ -47,7 +47,7 @@ class ReportPenaltyCommandTest {
 		void whenAuthorNotResolvable() {
 			when(event.getMember()).thenReturn(null);
 
-			UNDER_TEST.handleCommand(event);
+			UNDER_TEST.handleSlashCommand(event);
 
 			verifyNotInGuildReply();
 		}
@@ -58,7 +58,7 @@ class ReportPenaltyCommandTest {
 			OptionMapping someOptionMapping = givenMemberOptionMapping();
 			when(someOptionMapping.getAsMember()).thenReturn(null);
 
-			UNDER_TEST.handleCommand(event);
+			UNDER_TEST.handleSlashCommand(event);
 
 			verifyNotInGuildReply();
 		}
@@ -70,7 +70,7 @@ class ReportPenaltyCommandTest {
 			when(someOption.getAsMember()).thenReturn(member);
 			when(event.getGuild()).thenReturn(null);
 
-			UNDER_TEST.handleCommand(event);
+			UNDER_TEST.handleSlashCommand(event);
 
 			verifyNotInGuildReply();
 		}

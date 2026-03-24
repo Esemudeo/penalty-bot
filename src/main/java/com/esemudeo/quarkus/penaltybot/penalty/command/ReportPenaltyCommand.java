@@ -10,9 +10,11 @@ import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
 import com.esemudeo.quarkus.penaltybot.shared.command.SlashCommand;
-import com.esemudeo.quarkus.penaltybot.shared.exception.NotInGuildException;
+import com.esemudeo.quarkus.penaltybot.shared.command.UserContextMenuCommand;
 import com.esemudeo.quarkus.penaltybot.permission.RequiresCommandPermission;
 import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
 import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.repository.PenaltyTypeRepository;
@@ -23,14 +25,12 @@ import java.util.UUID;
 
 @RequiresCommandPermission
 @ApplicationScoped
-public class ReportPenaltyCommand extends SlashCommand {
+public class ReportPenaltyCommand implements SlashCommand, UserContextMenuCommand {
 
 	public static final String MODAL_ID_PREFIX = "report-penalty:";
 	public static final String FIELD_MEMBER = "modal-member";
 	public static final String FIELD_AMOUNT = "modal-amount";
 	public static final String FIELD_REASON = "modal-reason";
-
-	private static final String ERROR_NOT_ON_GUILD = "Command wasn't executed inside a server.";
 
 	@Inject
 	PenaltyTypeRepository penaltyTypeRepository;
@@ -41,72 +41,65 @@ public class ReportPenaltyCommand extends SlashCommand {
 	}
 
 	@Override
-	protected String getDescription() {
+	public String getHelpDescription() {
 		return "Report a penalty for a member.";
 	}
 
 	@Override
-	public void handleCommand(SlashCommandInteractionEvent event) {
-		try {
-			long guildId = resolveGuildId(event);
-
-			EntitySelectMenu memberSelect = EntitySelectMenu.create(FIELD_MEMBER, EntitySelectMenu.SelectTarget.USER)
-					.setPlaceholder("Select a member")
-					.setDefaultValues(EntitySelectMenu.DefaultValue.user(event.getUser().getIdLong()))
-					.setRequired(true)
-					.build();
-
-			TextInput amountInput = TextInput.create(FIELD_AMOUNT, TextInputStyle.SHORT)
-					.setPlaceholder("1")
-					.setValue("1")
-					.setRequired(true)
-					.build();
-
-			List<PenaltyType> penaltyTypes = penaltyTypeRepository.findActiveByGuild(guildId);
-			List<SelectOption> allPenaltyTypes = penaltyTypes.stream()
-					.map(pt -> SelectOption.of(pt.getDisplayName(), pt.getTechnicalName()))
-					.toList();
-			Optional<PenaltyType> defaultPenaltyType = penaltyTypes.stream()
-					.filter(PenaltyType::isDefaultType)
-					.findFirst();
-
-			StringSelectMenu.Builder reasonSelectBuilder = StringSelectMenu.create(FIELD_REASON)
-					.addOptions(allPenaltyTypes)
-					.setRequired(true);
-
-			if (defaultPenaltyType.isPresent()) {
-				reasonSelectBuilder.setDefaultValues(defaultPenaltyType.get().getTechnicalName());
-			} else {
-				reasonSelectBuilder.setPlaceholder("No default value configured - please select manually");
-			}
-
-			StringSelectMenu reasonSelect = reasonSelectBuilder.build();
-
-			Modal modal = Modal.create(MODAL_ID_PREFIX + UUID.randomUUID(), "Report Penalty")
-					.addComponents(
-							Label.of("Affected Member", memberSelect),
-							Label.of("Amount", amountInput),
-							Label.of("Reason", reasonSelect))
-					.build();
-
-			event.replyModal(modal).queue();
-		} catch (NotInGuildException e) {
-			replyAsNotInGuild(event);
-		} catch (Exception e) {
-			event.reply("An error occurred while processing the command.").setEphemeral(true).queue();
-		}
+	public String getContextMenuName() {
+		return "Report penalty";
 	}
 
-
-	private static long resolveGuildId(SlashCommandInteractionEvent event) {
-		Guild guild = event.getGuild();
-		if (guild == null) {
-			throw new NotInGuildException();
-		}
-		return guild.getIdLong();
+	@Override
+	public void handleSlashCommand(SlashCommandInteractionEvent event) {
+		executeInGuild(event, guild -> openModal(guild, event.getUser().getIdLong(), event));
 	}
 
-	private static void replyAsNotInGuild(SlashCommandInteractionEvent event) {
-		event.reply(ERROR_NOT_ON_GUILD).setEphemeral(true).queue();
+	@Override
+	public void handleContextMenuCommand(UserContextInteractionEvent event) {
+		executeInGuild(event, guild -> openModal(guild, event.getTarget().getIdLong(), event));
+	}
+
+	private void openModal(Guild guild, long preselectedUserId, GenericCommandInteractionEvent callback) {
+		EntitySelectMenu memberSelect = EntitySelectMenu.create(FIELD_MEMBER, EntitySelectMenu.SelectTarget.USER)
+				.setPlaceholder("Select a member")
+				.setDefaultValues(EntitySelectMenu.DefaultValue.user(preselectedUserId))
+				.setRequired(true)
+				.build();
+
+		TextInput amountInput = TextInput.create(FIELD_AMOUNT, TextInputStyle.SHORT)
+				.setPlaceholder("1")
+				.setValue("1")
+				.setRequired(true)
+				.build();
+
+		List<PenaltyType> penaltyTypes = penaltyTypeRepository.findActiveByGuild(guild.getIdLong());
+		List<SelectOption> allPenaltyTypes = penaltyTypes.stream()
+				.map(pt -> SelectOption.of(pt.getDisplayName(), pt.getTechnicalName()))
+				.toList();
+		Optional<PenaltyType> defaultPenaltyType = penaltyTypes.stream()
+				.filter(PenaltyType::isDefaultType)
+				.findFirst();
+
+		StringSelectMenu.Builder reasonSelectBuilder = StringSelectMenu.create(FIELD_REASON)
+				.addOptions(allPenaltyTypes)
+				.setRequired(true);
+
+		if (defaultPenaltyType.isPresent()) {
+			reasonSelectBuilder.setDefaultValues(defaultPenaltyType.get().getTechnicalName());
+		} else {
+			reasonSelectBuilder.setPlaceholder("No default value configured - please select manually");
+		}
+
+		StringSelectMenu reasonSelect = reasonSelectBuilder.build();
+
+		Modal modal = Modal.create(MODAL_ID_PREFIX + UUID.randomUUID(), "Report Penalty")
+				.addComponents(
+						Label.of("Affected Member", memberSelect),
+						Label.of("Amount", amountInput),
+						Label.of("Reason", reasonSelect))
+				.build();
+
+		callback.replyModal(modal).queue();
 	}
 }

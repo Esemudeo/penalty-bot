@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import com.esemudeo.quarkus.penaltybot.shared.command.SlashCommand;
-import com.esemudeo.quarkus.penaltybot.shared.exception.NotInGuildException;
 import com.esemudeo.quarkus.penaltybot.permission.RequiresCommandPermission;
 import com.esemudeo.quarkus.penaltybot.configuration.auth.model.ConfigSessionToken;
 import com.esemudeo.quarkus.penaltybot.configuration.auth.repository.ConfigSessionTokenRepository;
@@ -19,7 +18,7 @@ import java.util.HexFormat;
 
 @RequiresCommandPermission
 @ApplicationScoped
-public class PenaltySetupCommand extends SlashCommand {
+public class PenaltySetupCommand implements SlashCommand {
 
 	private static final Logger LOG = Logger.getLogger(PenaltySetupCommand.class);
 
@@ -38,42 +37,34 @@ public class PenaltySetupCommand extends SlashCommand {
 	}
 
 	@Override
-	protected String getDescription() {
+	public String getHelpDescription() {
 		return "Open the configuration page for this server.";
 	}
 
 	@Override
-	public void handleCommand(SlashCommandInteractionEvent event) {
-		try {
-			Guild guild = event.getGuild();
-			if (guild == null) {
-				throw new NotInGuildException();
-			}
+	public void handleSlashCommand(SlashCommandInteractionEvent event) {
+		executeInGuild(event, guild -> generateConfigLink(guild, event),
+				e -> LOG.error("Error handling penalty-setup command", e));
+	}
 
-			long userId = event.getUser().getIdLong();
-			long guildId = guild.getIdLong();
+	private void generateConfigLink(Guild guild, SlashCommandInteractionEvent event) {
+		long userId = event.getUser().getIdLong();
 
-			configSessionTokenRepository.invalidateAllForUser(userId);
+		configSessionTokenRepository.invalidateAllForUser(userId);
 
-			String token = generateToken();
-			configSessionTokenRepository.save(ConfigSessionToken.builder()
-					.userId(userId)
-					.guildId(guildId)
-					.token(token)
-					.expiresAt(Instant.now().plus(TOKEN_VALIDITY_MINUTES, ChronoUnit.MINUTES))
-					.used(false)
-					.build());
+		String token = generateToken();
+		configSessionTokenRepository.save(ConfigSessionToken.builder()
+				.userId(userId)
+				.guildId(guild.getIdLong())
+				.token(token)
+				.expiresAt(Instant.now().plus(TOKEN_VALIDITY_MINUTES, ChronoUnit.MINUTES))
+				.used(false)
+				.build());
 
-			String configUrl = baseUrl + "/configure?token=" + token;
-			event.reply("Here is your configuration link (valid for %d minutes): <%s>".formatted(TOKEN_VALIDITY_MINUTES, configUrl))
-					.setEphemeral(true)
-					.queue();
-		} catch (NotInGuildException e) {
-			event.reply("Command wasn't executed inside a server.").setEphemeral(true).queue();
-		} catch (Exception e) {
-			event.reply("An error occurred while processing the command.").setEphemeral(true).queue();
-			LOG.error("Error handling penalty-setup command", e);
-		}
+		String configUrl = baseUrl + "/configure?token=" + token;
+		event.reply("Here is your configuration link (valid for %d minutes): <%s>".formatted(TOKEN_VALIDITY_MINUTES, configUrl))
+				.setEphemeral(true)
+				.queue();
 	}
 
 	private static String generateToken() {
