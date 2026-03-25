@@ -148,6 +148,22 @@ public class SettingsService {
         globalGuildConfigRepository.upsertPaypalMeUsername(guildId(), paypalUsername);
     }
 
+    public record GuildTextChannel(long id, String name) {}
+
+    public List<GuildTextChannel> getGuildTextChannels() {
+        Guild guild = jdaInstance.getJda().getGuildById(guildId());
+        if (guild == null) {
+            return List.of();
+        }
+        return guild.getTextChannels().stream()
+                .map(c -> new GuildTextChannel(c.getIdLong(), c.getName()))
+                .toList();
+    }
+
+    public void updateNotificationChannelId(Long channelId) {
+        globalGuildConfigRepository.upsertNotificationChannelId(guildId(), channelId);
+    }
+
     // ---
 
     private long guildId() {

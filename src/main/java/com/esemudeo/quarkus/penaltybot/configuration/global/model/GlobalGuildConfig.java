@@ -20,4 +20,6 @@ public class GlobalGuildConfig extends PanacheEntity {
 	private Long guildId;
 	@Column(name = "paypal_me_username")
 	private String paypalMeUsername;
+	@Column(name = "notification_channel_id")
+	private Long notificationChannelId;
 }

@@ -6,6 +6,9 @@ import jakarta.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import com.esemudeo.quarkus.penaltybot.configuration.global.model.GlobalGuildConfig;
+import com.esemudeo.quarkus.penaltybot.configuration.global.repository.GlobalGuildConfigRepository;
 import com.esemudeo.quarkus.penaltybot.shared.listener.ModalListener;
 import com.esemudeo.quarkus.penaltybot.penalty.command.ReportPenaltyCommand;
 import com.esemudeo.quarkus.penaltybot.penalty.model.Penalty;
@@ -20,6 +23,9 @@ public class ReportPenaltyModalListener extends ModalListener implements MemberM
 
 	@Inject
 	PenaltyRepository penaltyRepository;
+
+	@Inject
+	GlobalGuildConfigRepository globalGuildConfigRepository;
 
 	@Override
 	protected String getModalIdPrefix() {
@@ -60,7 +66,18 @@ public class ReportPenaltyModalListener extends ModalListener implements MemberM
 			return;
 		}
 
-		event.reply("Reported %d x %s for %s.".formatted(amount, penalty.get().getPenaltyType().getDisplayName(), affectedMember.getEffectiveName()))
-				.queue();
+		String successMessage = "%s reported %d x %s for %s."
+				.formatted(Objects.requireNonNull(event.getMember()).getEffectiveName(), amount, penalty.get().getPenaltyType().getDisplayName(), affectedMember.getEffectiveName());
+
+		Optional<GlobalGuildConfig> config = globalGuildConfigRepository.findByGuild(guild.getIdLong());
+		Long notificationChannelId = config.map(GlobalGuildConfig::getNotificationChannelId).orElse(null);
+
+		if (notificationChannelId != null) {
+			TextChannel notificationChannel = guild.getTextChannelById(notificationChannelId);
+			if (notificationChannel != null) {
+				notificationChannel.sendMessage(successMessage).queue();
+			}
+		}
+		event.reply(successMessage).setEphemeral(true).queue();
 	}
 }

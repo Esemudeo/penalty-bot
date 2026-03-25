@@ -24,4 +24,15 @@ public class GlobalGuildConfigRepository {
 					.persist();
 		}
 	}
+
+	public void upsertNotificationChannelId(long guildId, Long channelId) {
+		int updated = GlobalGuildConfig.update("notificationChannelId = ?1 where guildId = ?2", channelId, guildId);
+		if (updated == 0) {
+			GlobalGuildConfig.builder()
+					.guildId(guildId)
+					.notificationChannelId(channelId)
+					.build()
+					.persist();
+		}
+	}
 }
