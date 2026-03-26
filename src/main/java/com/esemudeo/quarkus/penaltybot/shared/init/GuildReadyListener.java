@@ -1,5 +1,6 @@
 package com.esemudeo.quarkus.penaltybot.shared.init;
 
+import com.esemudeo.quarkus.penaltybot.shared.command.GuildCommand;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
@@ -7,7 +8,6 @@ import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import com.esemudeo.quarkus.penaltybot.shared.command.SlashCommand;
 import com.esemudeo.quarkus.penaltybot.configuration.commandpermission.repository.CommandRepository;
 import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.repository.PenaltyTypeRepository;
 
@@ -15,7 +15,7 @@ import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.repository.Pena
 public class GuildReadyListener extends ListenerAdapter {
 
 	@Any
-	Instance<SlashCommand> slashCommands;
+	Instance<GuildCommand> guildCommands;
 
 	@Inject
 	PenaltyTypeRepository penaltyTypeRepository;
@@ -35,7 +35,7 @@ public class GuildReadyListener extends ListenerAdapter {
 	}
 
 	private void provideDefaultCommandPermissions(long guildId) {
-		for (String commandName : slashCommands.stream().map(SlashCommand::getName).toList()) {
+		for (String commandName : guildCommands.stream().map(GuildCommand::getName).toList()) {
 			commandPermissionRepository.persistIfAbsent(guildId, commandName);
 		}
 	}

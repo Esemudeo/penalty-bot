@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 
 public interface GuildCommand {
 
+	String getName();
+
 	@FunctionalInterface
 	interface GuildAction {
 		void execute(Guild guild) throws Exception;

@@ -5,8 +5,6 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public interface SlashCommand extends GuildCommand {
-	String getName();
-
 	String getHelpDescription();
 
 	default CommandData toSlashCommandData() {
