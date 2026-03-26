@@ -1,24 +1,32 @@
 package com.esemudeo.quarkus.penaltybot.configuration;
 
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.combobox.ComboBoxBase;
-import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.esemudeo.quarkus.penaltybot.configuration.commandpermission.CommandPermissionsCard;
+import com.esemudeo.quarkus.penaltybot.configuration.commandpermission.CommandPermissionsHandler;
+import com.esemudeo.quarkus.penaltybot.configuration.commandpermission.model.CommandPermission;
+import com.esemudeo.quarkus.penaltybot.configuration.global.GlobalSettingsCard;
+import com.esemudeo.quarkus.penaltybot.configuration.global.GlobalSettingsHandler;
+import com.esemudeo.quarkus.penaltybot.configuration.global.model.GlobalGuildConfig;
+import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.PenaltyTypesCard;
+import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.PenaltyTypesHandler;
+import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import jakarta.inject.Inject;
 
 import java.util.List;
+import java.util.Optional;
 
 @Route("settings")
+@PreserveOnRefresh
 public class SettingsView extends VerticalLayout implements BeforeEnterObserver {
-
-	private static final String DISCORD_DEFAULT_ROLE_COLOR = "#99AAB5";
 
 	@Inject
 	AuthSession authSession;
@@ -26,16 +34,11 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 	@Inject
 	SettingsService settingsService;
 
-	private final H2 welcomeHeading = new H2();
-	private final Paragraph welcomeParagraph = new Paragraph();
-	private final MultiSelectComboBox<SettingsService.GuildRole> reportPenaltyExplicitRolesComboBox = new MultiSelectComboBox<>("Explicit roles");
-	private final ComboBox<SettingsService.GuildRole> reportPenaltyMinRoleComboBox = new ComboBox<>("Minimum role");
+	private CommandPermissionsCard commandPermissionsCard;
+	private PenaltyTypesCard penaltyTypesCard;
+	private GlobalSettingsCard globalSettingsCard;
 
-	public SettingsView() {
-		configureRolesComboBox(reportPenaltyExplicitRolesComboBox);
-		configureRolesComboBox(reportPenaltyMinRoleComboBox);
-		add(welcomeHeading, welcomeParagraph, reportPenaltyExplicitRolesComboBox, reportPenaltyMinRoleComboBox);
-	}
+	private boolean initialized;
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
@@ -46,32 +49,109 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 		}
 
 		try {
-			welcomeHeading.setText("Penalty Bot Server Settings – %s".formatted(settingsService.getGuildName()));
-			welcomeParagraph.setText("Welcome, %s, to the server settings for the penalty bot!".formatted(settingsService.getMemberDisplayName()));
-			reportPenaltyExplicitRolesComboBox.setItems(settingsService.getGuildRoles());
-			reportPenaltyMinRoleComboBox.setItems(settingsService.getGuildRoles());
+			if (!initialized) {
+				buildSections();
+				initialized = true;
+			}
+			applyInitialState();
 		} catch (Exception e) {
 			event.forwardTo(ErrorView.class);
 		}
 	}
 
-	private <C extends ComboBoxBase<C, SettingsService.GuildRole, ?>> void configureRolesComboBox(C comboBox) {
-		comboBox.setItemLabelGenerator(SettingsService.GuildRole::name);
-		comboBox.setRenderer(new ComponentRenderer<>(role -> {
-			Span dot = new Span();
-			dot.getStyle()
-					.set("display", "inline-block")
-					.set("width", "10px").set("height", "10px")
-					.set("border-radius", "50%")
-					.set("background-color", role.hexColor() != null ? role.hexColor() : DISCORD_DEFAULT_ROLE_COLOR)
-					.set("margin-right", "8px")
-					.set("flex-shrink", "0");
-			return new Span(dot, new Span(role.name()));
-		}));
-		comboBox.setWidthFull();
+	private void buildSections() {
+		removeAll();
+		setPadding(false);
+		setSpacing(false);
+		setAlignItems(FlexComponent.Alignment.CENTER);
+		getStyle()
+				.set("background-color", "var(--lumo-shade-5pct)")
+				.set("min-height", "100vh")
+				.set("width", "100%")
+				.set("box-sizing", "border-box")
+				.set("overflow-x", "hidden");
+
+		Div content = new Div();
+		content.getStyle()
+				.set("max-width", "1200px")
+				.set("width", "100%")
+				.set("padding", "var(--lumo-space-m)")
+				.set("box-sizing", "border-box");
+
+		content.add(buildHeader());
+
+		// Load data
+		List<CommandPermission> commandPermissions = settingsService.getCommands();
+		Optional<GlobalGuildConfig> globalConfig = settingsService.getGlobalConfig();
+		List<PenaltyType> penaltyTypes = settingsService.getAllPenaltyTypes();
+
+		// Create handlers (logic)
+		CommandPermissionsHandler cpHandler = new CommandPermissionsHandler(commandPermissions, settingsService);
+		PenaltyTypesHandler ptHandler = new PenaltyTypesHandler(penaltyTypes, settingsService);
+		GlobalSettingsHandler gsHandler = new GlobalSettingsHandler(globalConfig, settingsService);
+
+		// Create cards (UI)
+		commandPermissionsCard = new CommandPermissionsCard(cpHandler);
+		penaltyTypesCard = new PenaltyTypesCard(ptHandler);
+		globalSettingsCard = new GlobalSettingsCard(gsHandler);
+
+		// Two-column layout
+		Div columnsRow = new Div();
+		columnsRow.getStyle()
+				.set("display", "flex")
+				.set("gap", "var(--lumo-space-s)")
+				.set("align-items", "flex-start")
+				.set("flex-wrap", "wrap");
+
+		Div leftColumn = new Div();
+		leftColumn.getStyle()
+				.set("flex", "1 1 400px")
+				.set("min-width", "0");
+		leftColumn.add(commandPermissionsCard);
+
+		Div rightColumn = new Div();
+		rightColumn.getStyle()
+				.set("flex", "1 1 400px")
+				.set("min-width", "0");
+		rightColumn.add(penaltyTypesCard);
+		rightColumn.add(globalSettingsCard);
+
+		columnsRow.add(leftColumn, rightColumn);
+		content.add(columnsRow);
+
+		add(content);
 	}
 
-	/** Validates the one-time settings-access token from the URL, populates AuthSession, returns false on failure. */
+	private Div buildHeader() {
+		Div header = new Div();
+		header.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+
+		H2 heading = new H2("Penalty Bot Server Settings");
+		heading.getStyle()
+				.set("margin", "0")
+				.set("font-size", "var(--lumo-font-size-xl)");
+
+		Span guildName = new Span(settingsService.getGuildName());
+		guildName.getStyle()
+				.set("font-size", "var(--lumo-font-size-m)")
+				.set("color", "var(--lumo-secondary-text-color)");
+
+		Paragraph welcome = new Paragraph("Welcome, %s!".formatted(settingsService.getMemberDisplayName()));
+		welcome.getStyle()
+				.set("margin", "var(--lumo-space-xs) 0 0 0")
+				.set("color", "var(--lumo-secondary-text-color)")
+				.set("font-size", "var(--lumo-font-size-s)");
+
+		header.add(heading, guildName, welcome);
+		return header;
+	}
+
+	private void applyInitialState() {
+		commandPermissionsCard.applyInitialState();
+		penaltyTypesCard.applyInitialState();
+		globalSettingsCard.applyInitialState();
+	}
+
 	private boolean tryAuthenticateFromToken(BeforeEnterEvent event) {
 		List<String> tokens = event.getLocation().getQueryParameters().getParameters().get("token");
 		if (tokens == null || tokens.isEmpty() || !settingsService.authenticateWithToken(tokens.getFirst())) {

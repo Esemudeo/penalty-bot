@@ -12,14 +12,14 @@ import java.util.UUID;
 @Transactional
 public class PenaltyTypeRepository {
 
-    /** Only active types – used by the bot when presenting options to users. */
+    /** Only active, non-deleted types – used by the bot when presenting options to users. */
     public List<PenaltyType> findActiveByGuild(long guildId) {
-        return PenaltyType.find("guildId = ?1 and active = true", guildId).list();
+        return PenaltyType.find("guildId = ?1 and active = true and deleted = false", guildId).list();
     }
 
-    /** All types including inactive – used by the settings UI. */
+    /** Active and inactive types, excluding deleted – used by the settings UI. */
     public List<PenaltyType> findAllByGuild(long guildId) {
-        return PenaltyType.find("guildId = ?1", guildId).list();
+        return PenaltyType.find("guildId = ?1 and deleted = false", guildId).list();
     }
 
     /** Internal lookup by technical name (UUID), used when saving a penalty. */
@@ -67,12 +67,29 @@ public class PenaltyTypeRepository {
                 displayName, isDefault, price, id, guildId);
     }
 
+    public void update(long id, long guildId, String displayName, boolean isDefault, Integer price, boolean active) {
+        if (isDefault) {
+            unsetDefaultForGuild(guildId);
+        }
+        PenaltyType.update("displayName = ?1, defaultType = ?2, price = ?3, active = ?4 where id = ?5 and guildId = ?6",
+                displayName, isDefault, price, active, id, guildId);
+    }
+
     /**
-     * Soft-deletes a penalty type. Existing penalty records referencing this type are preserved.
+     * Soft-deletes a penalty type by marking it as inactive.
      * guildId is included in the WHERE clause – a mismatched ID silently affects nothing.
      */
     public void deactivate(long id, long guildId) {
         PenaltyType.update("active = false, defaultType = false where id = ?1 and guildId = ?2", id, guildId);
+    }
+
+    /**
+     * Permanently hides a penalty type from both the bot and the settings UI.
+     * Used as a fallback when hard-delete is blocked by a foreign key constraint.
+     * guildId is included in the WHERE clause – a mismatched ID silently affects nothing.
+     */
+    public void markAsDeleted(long id, long guildId) {
+        PenaltyType.update("deleted = true, active = false, defaultType = false where id = ?1 and guildId = ?2", id, guildId);
     }
 
     /**

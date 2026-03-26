@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.RoleColors;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -93,6 +94,30 @@ public class SettingsService {
                 .toList();
     }
 
+    public Optional<GuildRole> getGuildRoleById(long roleId) {
+        Guild guild = jdaInstance.getJda().getGuildById(guildId());
+        if (guild == null) {
+            return Optional.empty();
+        }
+        Role role = guild.getRoleById(roleId);
+        if (role == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new GuildRole(role.getIdLong(), role.getName(), roleHexColor(role)));
+    }
+
+    public List<GuildRole> getGuildRolesByIds(java.util.Collection<Long> roleIds) {
+        Guild guild = jdaInstance.getJda().getGuildById(guildId());
+        if (guild == null) {
+            return List.of();
+        }
+        return roleIds.stream()
+                .map(guild::getRoleById)
+                .filter(Objects::nonNull)
+                .map(r -> new GuildRole(r.getIdLong(), r.getName(), roleHexColor(r)))
+                .toList();
+    }
+
     private String roleHexColor(Role role) {
         RoleColors colors = role.getColors();
         if (colors.isDefault()) {
@@ -115,13 +140,21 @@ public class SettingsService {
         penaltyTypeRepository.update(id, guildId(), displayName, isDefault, price);
     }
 
+    public void updatePenaltyType(long id, String displayName, boolean isDefault, Integer price, boolean active) {
+        penaltyTypeRepository.update(id, guildId(), displayName, isDefault, price, active);
+    }
+
     public void makePenaltyTypeUnusable(long id) {
         long guildId = guildId();
         try {
             penaltyTypeRepository.delete(id, guildId);
         } catch (PersistenceException e) {
-            penaltyTypeRepository.deactivate(id, guildId);
+            penaltyTypeRepository.markAsDeleted(id, guildId);
         }
+    }
+
+    public List<PenaltyType> getAllPenaltyTypes() {
+        return penaltyTypeRepository.findAllByGuild(guildId());
     }
 
     // --- Command permissions ---
@@ -158,6 +191,18 @@ public class SettingsService {
         return guild.getTextChannels().stream()
                 .map(c -> new GuildTextChannel(c.getIdLong(), c.getName()))
                 .toList();
+    }
+
+    public Optional<GuildTextChannel> getGuildTextChannelById(long channelId) {
+        Guild guild = jdaInstance.getJda().getGuildById(guildId());
+        if (guild == null) {
+            return Optional.empty();
+        }
+        net.dv8tion.jda.api.entities.channel.concrete.TextChannel channel = guild.getTextChannelById(channelId);
+        if (channel == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new GuildTextChannel(channel.getIdLong(), channel.getName()));
     }
 
     public void updateNotificationChannelId(Long channelId) {

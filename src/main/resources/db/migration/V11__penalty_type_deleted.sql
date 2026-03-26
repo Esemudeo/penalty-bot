@@ -1,0 +1,1 @@
+ALTER TABLE penalty_type ADD deleted BOOLEAN NOT NULL DEFAULT false;

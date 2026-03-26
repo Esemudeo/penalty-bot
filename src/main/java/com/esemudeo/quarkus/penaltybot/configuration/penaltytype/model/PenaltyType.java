@@ -33,4 +33,7 @@ public class PenaltyType extends PanacheEntity {
 	@Setter
 	@Column(name = "active", nullable = false)
 	private boolean active;
+	@Setter
+	@Column(name = "deleted", nullable = false)
+	private boolean deleted;
 }
