@@ -1,90 +1,172 @@
-# penalty-bot
+# Penalty Bot
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Invite Bot](https://img.shields.io/badge/Discord-Invite%20Bot-5865F2?logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1481017571552661524)
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+A Discord bot for tracking penalties within guild communities. Members can report penalties, view individual or aggregated summaries, and guild admins can configure penalty types, permissions, and payment links through a web-based admin panel.
 
-## Running the application in dev mode
+Built with Quarkus, JDA, and Vaadin.
 
-You can run your application in dev mode that enables live coding using:
+**Want to use the bot?** Click the "Invite Bot" badge above or [this link](https://discord.com/oauth2/authorize?client_id=1481017571552661524) to add a running instance to your Discord server — no setup required.
 
-```shell script
+If you prefer to host your own instance, follow the instructions below.
+
+## Features
+
+- **Slash Commands** — Report penalties, view individual penalty history, generate monthly summaries
+- **Context Menu Integration** — Key commands accessible via right-click on a user
+- **Web Admin Panel** — Vaadin-based settings UI protected by Discord OAuth2
+- **Configurable Penalty Types** — Define custom penalty categories with optional pricing per guild
+- **Granular Permissions** — Per-command role-based access control (minimum role + explicit roles)
+- **Multi-Guild Support** — Each guild has isolated settings, penalty types, and permissions
+- **Notification Channel** — Optionally broadcast penalty reports to a designated channel
+- **PayPal Integration** — Link a PayPal.me account for easy payment collection in summaries
+
+## Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| [Quarkus 3](https://quarkus.io/) | Application framework |
+| Java 21 | Language |
+| [JDA 6](https://github.com/discord-jda/JDA) | Discord API wrapper |
+| [Vaadin 24](https://vaadin.com/) | Web admin UI |
+| PostgreSQL | Database |
+| [Flyway](https://flywaydb.org/) | Database migrations |
+| Hibernate + Panache | ORM |
+| Lombok | Boilerplate reduction |
+
+## Prerequisites
+
+- **JDK 21** (e.g. via [SDKMAN](https://sdkman.io/))
+- **Maven 3.9+** (or use the included `./mvnw` wrapper)
+- **A Discord Application** with bot token and OAuth2 credentials — see [Getting Started](#getting-started)
+- **PostgreSQL** (only for production — dev mode auto-provisions a container via Quarkus Dev Services)
+
+## Getting Started
+
+### 1. Create a Discord Application
+
+1. Go to the [Discord Developer Portal](https://discord.com/developers/applications) and create a new application.
+2. Under **Bot**, copy the bot token.
+3. Under **OAuth2**, note the client ID and client secret.
+4. Add a redirect URI (e.g. `http://localhost:8080/oauth/callback` for local development).
+5. Invite the bot to your server with the `bot` and `applications.commands` scopes.
+
+### 2. Configure Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+DISCORD_BOT_TOKEN=your-bot-token
+DISCORD_CLIENT_ID=your-client-id
+DISCORD_CLIENT_SECRET=your-client-secret
+DISCORD_REDIRECT_URI=http://localhost:8080/oauth/callback
+APP_BASE_URL=http://localhost:8080
+```
+
+For production, also set:
+
+```env
+DB_JDBC_URL=jdbc:postgresql://localhost:5432/penaltybot
+DB_PASSWORD=your-db-password
+```
+
+> In dev mode, `DB_JDBC_URL` and `DB_PASSWORD` are optional — Quarkus Dev Services spins up a PostgreSQL container automatically.
+
+### 3. Run in Dev Mode
+
+```bash
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+The bot connects to Discord immediately. The Quarkus Dev UI is available at `http://localhost:8080/q/dev/`.
 
-## Packaging and running the application
+## Configuration
 
-The application can be packaged using:
+| Variable | Required | Description |
+|---|---|---|
+| `DISCORD_BOT_TOKEN` | Yes | JDA bot token from the Developer Portal |
+| `DISCORD_CLIENT_ID` | Yes | OAuth2 client ID |
+| `DISCORD_CLIENT_SECRET` | Yes | OAuth2 client secret |
+| `DISCORD_REDIRECT_URI` | Yes | OAuth2 callback URL (must match Developer Portal) |
+| `APP_BASE_URL` | Yes | Base URL of the web UI (e.g. `https://penalty.example.com`) |
+| `DB_JDBC_URL` | Prod only | PostgreSQL JDBC URL |
+| `DB_PASSWORD` | Prod only | PostgreSQL password |
 
-```shell script
+## Bot Commands
+
+| Command | Description |
+|---|---|
+| `/penalty-report` | Report a penalty for a guild member (also available via user context menu) |
+| `/penalty-show` | View penalties for a specific member in a given month (also available via user context menu) |
+| `/penalty-summary` | View aggregated penalty summary for all members in a given month |
+| `/penalty-setup` | Generate a secure, time-limited link to the web admin panel |
+
+## Web Admin Panel
+
+The admin panel is accessible via the link generated by `/penalty-setup`. It provides three configuration sections:
+
+- **Command Permissions** — Set a minimum role or explicit roles for each bot command
+- **Penalty Types** — Create, edit, activate/deactivate, and delete penalty categories with optional pricing
+- **Common Settings** — Configure a PayPal.me username and a notification channel for penalty reports
+
+Authentication uses Discord OAuth2 — only guild members with sufficient permissions can access the panel.
+
+## Building for Production
+
+```bash
+# Standard JAR
 ./mvnw package
-```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+# Run
+java -jar target/quarkus-app/quarkus-run.jar
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
+# Native build (requires GraalVM or Docker)
 ./mvnw package -Dnative -Dquarkus.native.container-build=true
+
+# Run native
+./target/penalty-bot-1.0-SNAPSHOT-runner
 ```
 
-You can then execute your native executable with: `./target/penalty-bot-1.0-SNAPSHOT-runner`
+Docker images can be built using the Dockerfiles in `src/main/docker/`:
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+```bash
+# JVM-based image
+docker build -f src/main/docker/Dockerfile.jvm -t penalty-bot .
 
-## Related Guides
+# Native image
+docker build -f src/main/docker/Dockerfile.native -t penalty-bot-native .
+```
 
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and
-  Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on
-  it.
-- Hibernate Validator ([guide](https://quarkus.io/guides/validation)): Validate object properties (field, getter) and
-  method parameters for your beans (REST, CDI, Jakarta Persistence)
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus
-  REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code
-  for Hibernate ORM via the active record or the repository pattern
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
+## Project Structure
 
-## Provided Code
+```
+com.esemudeo.quarkus.penaltybot/
+├── configuration/            # Web admin UI, OAuth, settings
+│   ├── auth/                 # Session tokens, OAuth flow
+│   ├── commandpermission/    # Command permission Card + Handler
+│   ├── global/               # Global settings Card + Handler
+│   └── penaltytype/          # Penalty type Card + Handler
+├── penalty/                  # Penalty business logic
+│   ├── command/              # Slash commands
+│   ├── listener/             # Modal listeners for form submissions
+│   ├── model/                # Penalty JPA entity
+│   └── repository/           # Data access
+├── permission/               # @RequiresCommandPermission interceptor
+└── shared/                   # Core bot infrastructure
+    ├── command/              # Base command interfaces
+    ├── listener/             # Event listeners (guild ready, slash, context menu)
+    └── init/                 # Startup initialization
+```
 
-### Hibernate ORM
+## Roadmap
 
-Create your first JPA entity
+- Roles for receiving penalty reports
+- Dark mode for admin panel
+- Support for negative penalties (credits)
+- Auto-delete notification messages after a configurable time
+- Permission checks before sending to notification channel (graceful error handling)
 
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
+## License
 
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
-
-# TODOs
-
-- roles for receiving reports
-- be able to reset selected roles in multi selects
-- dark mode
-- role for negative penalties
+This project is licensed under the [Apache License 2.0](LICENSE).
