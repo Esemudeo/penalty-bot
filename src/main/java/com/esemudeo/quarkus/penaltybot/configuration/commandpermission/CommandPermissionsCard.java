@@ -52,12 +52,7 @@ public class CommandPermissionsCard extends SettingsCard {
 		saveButton = new Button("Save");
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.setEnabled(false);
-		saveButton.addClickListener(e -> {
-			handler.save();
-			saveButton.setEnabled(false);
-			Notification.show("Command permissions saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
-					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		});
+		saveButton.addClickListener(e -> savePermissions());
 
 		var buttonWrapper = new Div(saveButton);
 		buttonWrapper.getStyle().set("margin-top", "var(--lumo-space-m)");
@@ -144,19 +139,28 @@ public class CommandPermissionsCard extends SettingsCard {
 		saveButton.setEnabled(false);
 	}
 
+	private void savePermissions() {
+		handler.save();
+		saveButton.setEnabled(false);
+		Notification.show("Command permissions saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
+				.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+	}
+
+	private Span renderRoleWithColorDot(SettingsService.GuildRole role) {
+		var dot = new Span();
+		dot.getStyle()
+				.set("display", "inline-block")
+				.set("width", "10px").set("height", "10px")
+				.set("border-radius", "50%")
+				.set("background-color", role.hexColor() != null ? role.hexColor() : DISCORD_DEFAULT_ROLE_COLOR)
+				.set("margin-right", "8px")
+				.set("flex-shrink", "0");
+		return new Span(dot, new Span(role.name()));
+	}
+
 	private <C extends ComboBoxBase<C, SettingsService.GuildRole, ?>> void configureRolesComboBox(C comboBox) {
 		comboBox.setItemLabelGenerator(SettingsService.GuildRole::name);
-		comboBox.setRenderer(new ComponentRenderer<>(role -> {
-			var dot = new Span();
-			dot.getStyle()
-					.set("display", "inline-block")
-					.set("width", "10px").set("height", "10px")
-					.set("border-radius", "50%")
-					.set("background-color", role.hexColor() != null ? role.hexColor() : DISCORD_DEFAULT_ROLE_COLOR)
-					.set("margin-right", "8px")
-					.set("flex-shrink", "0");
-			return new Span(dot, new Span(role.name()));
-		}));
+		comboBox.setRenderer(new ComponentRenderer<>(this::renderRoleWithColorDot));
 		comboBox.setWidthFull();
 		comboBox.getElement().addPropertyChangeListener(OPENED_PROPERTY, e -> {
 			boolean dropdownWasOpened = Boolean.TRUE.equals(e.getValue());

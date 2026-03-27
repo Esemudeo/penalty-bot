@@ -40,14 +40,7 @@ public class GlobalSettingsCard extends SettingsCard {
 		paypalPreview.getStyle()
 				.set("color", "var(--lumo-secondary-text-color)")
 				.set("font-size", "var(--lumo-font-size-s)");
-		paypalField.addValueChangeListener(e -> {
-			String username = e.getValue();
-			if (username != null && !username.isBlank()) {
-				paypalPreview.setText("https://paypal.me/%s".formatted(username.trim()));
-			} else {
-				paypalPreview.setText("");
-			}
-		});
+		paypalField.addValueChangeListener(e -> updatePaypalPreview(paypalPreview, e.getValue()));
 
 		notificationChannelComboBox = new ComboBox<>("Notification Channel");
 		notificationChannelComboBox.setItemLabelGenerator(SettingsService.GuildTextChannel::name);
@@ -67,15 +60,7 @@ public class GlobalSettingsCard extends SettingsCard {
 		paypalField.addValueChangeListener(e -> updateDirtyState());
 		notificationChannelComboBox.addValueChangeListener(e -> updateDirtyState());
 
-		saveButton.addClickListener(e -> {
-			Long channelId = notificationChannelComboBox.getValue() != null
-					? notificationChannelComboBox.getValue().id()
-					: null;
-			handler.save(paypalField.getValue(), channelId);
-			saveButton.setEnabled(false);
-			Notification.show("Common settings saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
-					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		});
+		saveButton.addClickListener(e -> saveSettings());
 
 		var form = new FormLayout();
 		form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -87,6 +72,24 @@ public class GlobalSettingsCard extends SettingsCard {
 		buttonWrapper.getStyle().set("margin-top", "var(--lumo-space-m)");
 
 		add(form, buttonWrapper);
+	}
+
+	private void updatePaypalPreview(Span preview, String username) {
+		if (username != null && !username.isBlank()) {
+			preview.setText("https://paypal.me/%s".formatted(username.trim()));
+		} else {
+			preview.setText("");
+		}
+	}
+
+	private void saveSettings() {
+		Long channelId = notificationChannelComboBox.getValue() != null
+				? notificationChannelComboBox.getValue().id()
+				: null;
+		handler.save(paypalField.getValue(), channelId);
+		saveButton.setEnabled(false);
+		Notification.show("Common settings saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
+				.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 	}
 
 	private void updateDirtyState() {

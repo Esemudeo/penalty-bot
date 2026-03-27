@@ -64,12 +64,7 @@ public class PenaltyTypesCard extends SettingsCard {
 		saveButton = new Button("Save");
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.setEnabled(false);
-		saveButton.addClickListener(e -> {
-			handler.save();
-			refreshGrid();
-			Notification.show("Penalty types saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
-					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		});
+		saveButton.addClickListener(e -> savePenaltyTypes());
 
 		cancelButton = new Button("Cancel");
 		cancelButton.setVisible(false);
@@ -175,29 +170,7 @@ public class PenaltyTypesCard extends SettingsCard {
 
 		var saveBtn = new Button("Save");
 		saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		saveBtn.addClickListener(e -> {
-			String name = nameField.getValue();
-			if (name == null || name.isBlank()) {
-				nameField.setInvalid(true);
-				nameField.setErrorMessage("Name is required");
-				return;
-			}
-			if (handler.isNameDuplicate(name, existing)) {
-				nameField.setInvalid(true);
-				nameField.setErrorMessage("A penalty type with this name already exists");
-				return;
-			}
-
-			if (existing != null) {
-				handler.updateEntry(existing, name, defaultToggle.getValue(), priceField.getValue());
-			} else {
-				handler.addEntry(name, defaultToggle.getValue(), priceField.getValue());
-			}
-
-			grid.getDataProvider().refreshAll();
-			updateButtonStates();
-			dialog.close();
-		});
+		saveBtn.addClickListener(e -> submitDialogEntry(existing, nameField, defaultToggle, priceField, dialog));
 
 		var cancelBtn = new Button("Cancel", e -> dialog.close());
 
@@ -213,15 +186,49 @@ public class PenaltyTypesCard extends SettingsCard {
 		dialog.setCancelable(true);
 		dialog.setConfirmText("Delete");
 		dialog.setConfirmButtonTheme("error primary");
-		dialog.addConfirmListener(e -> {
-			handler.markForDeletion(entry);
-			grid.getDataProvider().refreshAll();
-			updateButtonStates();
-		});
+		dialog.addConfirmListener(e -> deletePenaltyType(entry));
 		dialog.open();
 	}
 
 	private void refreshGrid() {
+		grid.getDataProvider().refreshAll();
+		updateButtonStates();
+	}
+
+	private void savePenaltyTypes() {
+		handler.save();
+		refreshGrid();
+		Notification.show("Penalty types saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
+				.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+	}
+
+	private void submitDialogEntry(PenaltyTypesHandler.PenaltyTypeEntry existing,
+								   TextField nameField, Checkbox defaultToggle, IntegerField priceField, Dialog dialog) {
+		String name = nameField.getValue();
+		if (name == null || name.isBlank()) {
+			nameField.setInvalid(true);
+			nameField.setErrorMessage("Name is required");
+			return;
+		}
+		if (handler.isNameDuplicate(name, existing)) {
+			nameField.setInvalid(true);
+			nameField.setErrorMessage("A penalty type with this name already exists");
+			return;
+		}
+
+		if (existing != null) {
+			handler.updateEntry(existing, name, defaultToggle.getValue(), priceField.getValue());
+		} else {
+			handler.addEntry(name, defaultToggle.getValue(), priceField.getValue());
+		}
+
+		grid.getDataProvider().refreshAll();
+		updateButtonStates();
+		dialog.close();
+	}
+
+	private void deletePenaltyType(PenaltyTypesHandler.PenaltyTypeEntry entry) {
+		handler.markForDeletion(entry);
 		grid.getDataProvider().refreshAll();
 		updateButtonStates();
 	}
