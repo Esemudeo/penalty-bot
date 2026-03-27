@@ -8,7 +8,7 @@
 	<packaging>quarkus</packaging>
 
 	<properties>
-		<compiler-plugin.version>3.15.0</compiler-plugin.version>
+		<version.compiler-plugin>3.15.0</version.compiler-plugin>
 		<maven.compiler.release>21</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -16,7 +16,12 @@
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
 		<quarkus.platform.version>3.32.3</quarkus.platform.version>
 		<skipITs>true</skipITs>
-		<surefire-plugin.version>3.5.4</surefire-plugin.version>
+		<version.surefire-plugin>3.5.4</version.surefire-plugin>
+		<version.vaadin>24.10.0</version.vaadin>
+		<version.togglebutton>3.0.0</version.togglebutton>
+		<version.mockito>5.23.0</version.mockito>
+		<version.lombok>1.18.44</version.lombok>
+		<version.jda>6.3.1</version.jda>
 	</properties>
 
 	<dependencyManagement>
@@ -74,12 +79,12 @@
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-quarkus-extension</artifactId>
-			<version>24.10.0</version>
+			<version>${version.vaadin}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vaadin.componentfactory</groupId>
 			<artifactId>togglebutton</artifactId>
-			<version>3.0.0</version>
+			<version>${version.togglebutton}</version>
 		</dependency>
 
 		<!-- Test dependencies -->
@@ -91,7 +96,7 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>5.23.0</version>
+			<version>${version.mockito}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -99,7 +104,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.44</version>
+			<version>${version.lombok}</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -107,7 +112,7 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>6.3.1</version>
+			<version>${version.jda}</version>
 		</dependency>
 	</dependencies>
 
@@ -128,14 +133,14 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiler-plugin.version}</version>
+				<version>${version.compiler-plugin}</version>
 				<configuration>
 					<parameters>true</parameters>
 				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${surefire-plugin.version}</version>
+				<version>${version.surefire-plugin}</version>
 				<configuration>
 					<argLine>@{argLine}</argLine>
 					<systemPropertyVariables>
@@ -146,7 +151,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>${surefire-plugin.version}</version>
+				<version>${version.surefire-plugin}</version>
 				<executions>
 					<execution>
 						<goals>
