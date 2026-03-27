@@ -83,21 +83,21 @@ The bot connects to Discord immediately. The Quarkus Dev UI is available at `htt
 
 ## Configuration
 
-| Variable | Required | Description |
-|---|---|---|
-| `DISCORD_BOT_TOKEN` | Yes | JDA bot token from the Developer Portal |
-| `DISCORD_CLIENT_ID` | Yes | OAuth2 client ID |
-| `DISCORD_CLIENT_SECRET` | Yes | OAuth2 client secret |
-| `DISCORD_REDIRECT_URI` | Yes | OAuth2 callback URL (must match Developer Portal) |
-| `APP_BASE_URL` | Yes | Base URL of the web UI (e.g. `https://penalty.example.com`) |
-| `DB_JDBC_URL` | Prod only | PostgreSQL JDBC URL |
-| `DB_PASSWORD` | Prod only | PostgreSQL password |
+| Variable | Required | Description                                                           |
+|---|---|-----------------------------------------------------------------------|
+| `DISCORD_BOT_TOKEN` | Yes | JDA bot token from the Developer Portal                               |
+| `DISCORD_CLIENT_ID` | Yes | OAuth2 client ID                                                      |
+| `DISCORD_CLIENT_SECRET` | Yes | OAuth2 client secret                                                  |
+| `DISCORD_REDIRECT_URI` | Yes | OAuth2 callback URL (must match the ones in Discord Developer Portal) |
+| `APP_BASE_URL` | Yes | Base URL of the web UI (e.g. `https://penalty.example.com`)           |
+| `DB_JDBC_URL` | Prod only | PostgreSQL JDBC URL                                                   |
+| `DB_PASSWORD` | Prod only | PostgreSQL password                                                   |
 
 ## Bot Commands
 
 | Command | Description |
 |---|---|
-| `/penalty-report` | Report a penalty for a guild member (also available via user context menu) |
+| `/penalty` | Report a penalty for a guild member (also available via user context menu) |
 | `/penalty-show` | View penalties for a specific member in a given month (also available via user context menu) |
 | `/penalty-summary` | View aggregated penalty summary for all members in a given month |
 | `/penalty-setup` | Generate a secure, time-limited link to the web admin panel |
@@ -115,27 +115,23 @@ Authentication uses Discord OAuth2 — only guild members with sufficient permis
 ## Building for Production
 
 ```bash
-# Standard JAR
+# Build
 ./mvnw package
 
-# Run
+# Run standalone
 java -jar target/quarkus-app/quarkus-run.jar
-
-# Native build (requires GraalVM or Docker)
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-
-# Run native
-./target/penalty-bot-1.0-SNAPSHOT-runner
 ```
 
-Docker images can be built using the Dockerfiles in `src/main/docker/`:
+A [`docker-compose.yml`](docker-compose.yml) is included that bundles the bot with a PostgreSQL instance:
 
 ```bash
-# JVM-based image
-docker build -f src/main/docker/Dockerfile.jvm -t penalty-bot .
+# Build and start (includes bundled PostgreSQL)
+./mvnw package
+docker compose up -d --build
 
-# Native image
-docker build -f src/main/docker/Dockerfile.native -t penalty-bot-native .
+# If you already have a database, set DB_JDBC_URL in your .env,
+# remove the db service from docker-compose.yml, and run:
+docker compose up -d --build
 ```
 
 ## Project Structure
@@ -162,7 +158,7 @@ com.esemudeo.quarkus.penaltybot/
 ## Roadmap
 
 - Roles for receiving penalty reports
-- Support for negative penalties (credits)
+- Support for negative penalties (credits or corrections)
 - Auto-delete notification messages after a configurable time
 - Permission checks before sending to notification channel (graceful error handling)
 

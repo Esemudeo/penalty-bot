@@ -1,0 +1,35 @@
+services:
+  penalty-bot:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    env_file: .env
+    environment:
+      # Defaults to the bundled PostgreSQL service below.
+      # Override DB_JDBC_URL in your .env to use your own database instead.
+      DB_JDBC_URL: ${DB_JDBC_URL:-jdbc:postgresql://db:5432/penalty-bot}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Bundled PostgreSQL instance.
+  # If you already have a database, remove this service and the depends_on
+  # above, then set DB_JDBC_URL and DB_PASSWORD in your .env file.
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: penalty-bot
+      POSTGRES_USER: penalty-bot
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - penalty-bot-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U penalty-bot"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  penalty-bot-data:
