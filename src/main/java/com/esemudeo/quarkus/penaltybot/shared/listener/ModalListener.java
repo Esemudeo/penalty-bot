@@ -13,8 +13,9 @@ public abstract class ModalListener extends ListenerAdapter {
 
 	@Override
 	public final void onModalInteraction(@Nonnull ModalInteractionEvent event) {
-		if (!event.getModalId().startsWith(getModalIdPrefix()))
+		if (!event.getModalId().startsWith(getModalIdPrefix())) {
 			return;
+		}
 		Guild guild = event.getGuild();
 		if (guild == null) {
 			event.reply("This command can only be used inside a server.").setEphemeral(true).queue();

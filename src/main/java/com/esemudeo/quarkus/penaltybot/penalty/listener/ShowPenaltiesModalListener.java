@@ -29,12 +29,14 @@ public class ShowPenaltiesModalListener extends ModalListener implements MemberM
 	@Override
 	protected void handleModalInteraction(ModalInteractionEvent event, @Nonnull Guild validatedGuild) {
 		Member affectedMember = validateMember(event, ShowPenaltiesCommand.FIELD_MEMBER).orElse(null);
-		if (affectedMember == null)
+		if (affectedMember == null) {
 			return;
+		}
 
 		YearMonth yearMonth = validateYearMonth(event, ShowPenaltiesCommand.FIELD_MONTH).orElse(null);
-		if (yearMonth == null)
+		if (yearMonth == null) {
 			return;
+		}
 
 		Map<String, Integer> penalties = penaltyRepository.aggregateByMonth(validatedGuild.getIdLong(), yearMonth, affectedMember.getIdLong());
 		String monthLabel = yearMonth.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + yearMonth.getYear();

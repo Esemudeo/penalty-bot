@@ -35,8 +35,9 @@ public class ReportPenaltyModalListener extends ModalListener implements MemberM
 	@Override
 	protected void handleModalInteraction(ModalInteractionEvent event, @Nonnull Guild guild) {
 		Member affectedMember = validateMember(event, ReportPenaltyCommand.FIELD_MEMBER).orElse(null);
-		if (affectedMember == null)
+		if (affectedMember == null) {
 			return;
+		}
 
 		String amountRaw = Objects.requireNonNull(event.getValue(ReportPenaltyCommand.FIELD_AMOUNT)).getAsString();
 		int amount;
