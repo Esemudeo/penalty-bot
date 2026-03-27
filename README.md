@@ -3,11 +3,15 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Invite Bot](https://img.shields.io/badge/Discord-Invite%20Bot-5865F2?logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1481017571552661524)
 
-A Discord bot for tracking penalties within guild communities. Members can report penalties, view individual or aggregated summaries, and guild admins can configure penalty types, permissions, and payment links through a web-based admin panel.
+A Discord bot for tracking penalties within guild communities. Members can report penalties, view individual or
+aggregated summaries, and guild admins can configure penalty types, permissions, and payment links through a web-based
+admin panel.
 
 Built with Quarkus, JDA, and Vaadin.
 
-**Want to use the bot?** Click the "Invite Bot" badge above or [this link](https://discord.com/oauth2/authorize?client_id=1481017571552661524) to add a running instance to your Discord server — no setup required.
+**Want to use the bot?** Click the "Invite Bot" badge above
+or [this link](https://discord.com/oauth2/authorize?client_id=1481017571552661524) to add a running instance to your
+Discord server — no setup required.
 
 If you prefer to host your own instance, follow the instructions below.
 
@@ -24,16 +28,16 @@ If you prefer to host your own instance, follow the instructions below.
 
 ## Tech Stack
 
-| Technology | Purpose |
-|---|---|
-| [Quarkus 3](https://quarkus.io/) | Application framework |
-| Java 21 | Language |
-| [JDA 6](https://github.com/discord-jda/JDA) | Discord API wrapper |
-| [Vaadin 24](https://vaadin.com/) | Web admin UI |
-| PostgreSQL | Database |
-| [Flyway](https://flywaydb.org/) | Database migrations |
-| Hibernate + Panache | ORM |
-| Lombok | Boilerplate reduction |
+| Technology                                  | Purpose               |
+|---------------------------------------------|-----------------------|
+| [Quarkus 3](https://quarkus.io/)            | Application framework |
+| Java 21                                     | Language              |
+| [JDA 6](https://github.com/discord-jda/JDA) | Discord API wrapper   |
+| [Vaadin 24](https://vaadin.com/)            | Web admin UI          |
+| PostgreSQL                                  | Database              |
+| [Flyway](https://flywaydb.org/)             | Database migrations   |
+| Hibernate + Panache                         | ORM                   |
+| Lombok                                      | Boilerplate reduction |
 
 ## Prerequisites
 
@@ -71,7 +75,8 @@ DB_JDBC_URL=jdbc:postgresql://localhost:5432/penaltybot
 DB_PASSWORD=your-db-password
 ```
 
-> In dev mode, `DB_JDBC_URL` and `DB_PASSWORD` are optional — Quarkus Dev Services spins up a PostgreSQL container automatically.
+> In dev mode, `DB_JDBC_URL` and `DB_PASSWORD` are optional — Quarkus Dev Services spins up a PostgreSQL container
+> automatically.
 
 ### 3. Run in Dev Mode
 
@@ -83,24 +88,24 @@ The bot connects to Discord immediately. The Quarkus Dev UI is available at `htt
 
 ## Configuration
 
-| Variable | Required | Description                                                           |
-|---|---|-----------------------------------------------------------------------|
-| `DISCORD_BOT_TOKEN` | Yes | JDA bot token from the Developer Portal                               |
-| `DISCORD_CLIENT_ID` | Yes | OAuth2 client ID                                                      |
-| `DISCORD_CLIENT_SECRET` | Yes | OAuth2 client secret                                                  |
-| `DISCORD_REDIRECT_URI` | Yes | OAuth2 callback URL (must match the ones in Discord Developer Portal) |
-| `APP_BASE_URL` | Yes | Base URL of the web UI (e.g. `https://penalty.example.com`)           |
-| `DB_JDBC_URL` | Prod only | PostgreSQL JDBC URL                                                   |
-| `DB_PASSWORD` | Prod only | PostgreSQL password                                                   |
+| Variable                | Required  | Description                                                           |
+|-------------------------|-----------|-----------------------------------------------------------------------|
+| `DISCORD_BOT_TOKEN`     | Yes       | JDA bot token from the Developer Portal                               |
+| `DISCORD_CLIENT_ID`     | Yes       | OAuth2 client ID                                                      |
+| `DISCORD_CLIENT_SECRET` | Yes       | OAuth2 client secret                                                  |
+| `DISCORD_REDIRECT_URI`  | Yes       | OAuth2 callback URL (must match the ones in Discord Developer Portal) |
+| `APP_BASE_URL`          | Yes       | Base URL of the web UI (e.g. `https://penalty.example.com`)           |
+| `DB_JDBC_URL`           | Prod only | PostgreSQL JDBC URL                                                   |
+| `DB_PASSWORD`           | Prod only | PostgreSQL password                                                   |
 
 ## Bot Commands
 
-| Command | Description |
-|---|---|
-| `/penalty` | Report a penalty for a guild member (also available via user context menu) |
-| `/penalty-show` | View penalties for a specific member in a given month (also available via user context menu) |
-| `/penalty-summary` | View aggregated penalty summary for all members in a given month |
-| `/penalty-setup` | Generate a secure, time-limited link to the web admin panel |
+| Command            | Description                                                                                  |
+|--------------------|----------------------------------------------------------------------------------------------|
+| `/penalty`         | Report a penalty for a guild member (also available via user context menu)                   |
+| `/penalty-show`    | View penalties for a specific member in a given month (also available via user context menu) |
+| `/penalty-summary` | View aggregated penalty summary for all members in a given month                             |
+| `/penalty-setup`   | Generate a secure, time-limited link to the web admin panel                                  |
 
 ## Web Admin Panel
 
@@ -138,21 +143,23 @@ docker compose up -d --build
 
 ```
 com.esemudeo.quarkus.penaltybot/
-├── configuration/            # Web admin UI, OAuth, settings
-│   ├── auth/                 # Session tokens, OAuth flow
-│   ├── commandpermission/    # Command permission Card + Handler
-│   ├── global/               # Global settings Card + Handler
-│   └── penaltytype/          # Penalty type Card + Handler
-├── penalty/                  # Penalty business logic
-│   ├── command/              # Slash commands
-│   ├── listener/             # Modal listeners for form submissions
-│   ├── model/                # Penalty JPA entity
-│   └── repository/           # Data access
-├── permission/               # @RequiresCommandPermission interceptor
-└── shared/                   # Core bot infrastructure
-    ├── command/              # Base command interfaces
-    ├── listener/             # Event listeners (guild ready, slash, context menu)
-    └── init/                 # Startup initialization
+├── configuration/            # Guild administration via web UI
+│   ├── auth/                 # Discord OAuth2 login and session management
+│   ├── command/              # Slash command that generates admin panel links
+│   ├── commandpermission/    # Who may use which bot command
+│   ├── global/               # Guild-wide settings (PayPal, notification channel)
+│   └── penaltytype/          # Custom penalty categories and pricing
+├── penalty/                  # Core domain: recording and querying penalties
+│   ├── command/              # User-facing commands for penalties
+│   ├── listener/             # Discord modal form processing
+│   ├── model/                # Penalty domain model
+│   └── repository/           # Penalty data access
+├── permission/               # Role-based access control enforcement, could aswell count as configuration
+└── shared/                   # Cross-cutting bot infrastructure
+    ├── command/              # Shared command abstractions
+    ├── exception/            # Common error handling
+    ├── init/                 # Bot startup and guild initialization
+    └── listener/             # Discord event routing
 ```
 
 ## Roadmap
@@ -161,6 +168,7 @@ com.esemudeo.quarkus.penaltybot/
 - Support for negative penalties (credits or corrections)
 - Auto-delete notification messages after a configurable time
 - Permission checks before sending to notification channel (graceful error handling)
+- extend test environment
 
 ## License
 

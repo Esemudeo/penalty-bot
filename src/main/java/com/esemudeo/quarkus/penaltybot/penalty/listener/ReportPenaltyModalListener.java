@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import com.esemudeo.quarkus.penaltybot.configuration.global.model.GlobalGuildConfig;
 import com.esemudeo.quarkus.penaltybot.configuration.global.repository.GlobalGuildConfigRepository;
-import com.esemudeo.quarkus.penaltybot.shared.listener.ModalListener;
 import com.esemudeo.quarkus.penaltybot.penalty.command.ReportPenaltyCommand;
 import com.esemudeo.quarkus.penaltybot.penalty.model.Penalty;
 import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository;

@@ -5,7 +5,6 @@ import com.esemudeo.quarkus.penaltybot.configuration.global.repository.GlobalGui
 import com.esemudeo.quarkus.penaltybot.penalty.command.PenaltySummaryCommand;
 import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository;
 import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository.PenaltyTypeSummary;
-import com.esemudeo.quarkus.penaltybot.shared.listener.ModalListener;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

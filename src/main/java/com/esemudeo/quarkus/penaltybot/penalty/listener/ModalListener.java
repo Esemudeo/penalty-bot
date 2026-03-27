@@ -1,4 +1,4 @@
-package com.esemudeo.quarkus.penaltybot.shared.listener;
+package com.esemudeo.quarkus.penaltybot.penalty.listener;
 
 import jakarta.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.Guild;

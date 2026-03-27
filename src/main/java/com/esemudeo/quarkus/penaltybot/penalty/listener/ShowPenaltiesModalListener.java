@@ -6,7 +6,6 @@ import jakarta.inject.Inject;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import com.esemudeo.quarkus.penaltybot.shared.listener.ModalListener;
 import com.esemudeo.quarkus.penaltybot.penalty.command.ShowPenaltiesCommand;
 import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository;
 
