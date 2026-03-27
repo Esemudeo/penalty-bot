@@ -59,7 +59,7 @@ public class CommandPermissionsCard extends SettingsCard {
 					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		});
 
-		Div buttonWrapper = new Div(saveButton);
+		var buttonWrapper = new Div(saveButton);
 		buttonWrapper.getStyle().set("margin-top", "var(--lumo-space-m)");
 		add(buttonWrapper);
 	}
@@ -67,13 +67,13 @@ public class CommandPermissionsCard extends SettingsCard {
 	private void buildCommandPermissionRow(CommandPermission cp) {
 		String name = cp.getCommandName();
 
-		ComboBox<SettingsService.GuildRole> minRoleCombo = new ComboBox<>("Minimum role");
+		var minRoleCombo = new ComboBox<SettingsService.GuildRole>("Minimum role");
 		configureRolesComboBox(minRoleCombo);
 		minRoleCombo.setClearButtonVisible(true);
 		minRoleComboBoxes.put(name, minRoleCombo);
 		allSingleRoleComboBoxes.add(minRoleCombo);
 
-		MultiSelectComboBox<SettingsService.GuildRole> explicitRolesCombo = new MultiSelectComboBox<>("Explicit roles");
+		var explicitRolesCombo = new MultiSelectComboBox<SettingsService.GuildRole>("Explicit roles");
 		configureRolesComboBox(explicitRolesCombo);
 		explicitRoleComboBoxes.put(name, explicitRolesCombo);
 		allMultiRoleComboBoxes.add(explicitRolesCombo);
@@ -84,27 +84,27 @@ public class CommandPermissionsCard extends SettingsCard {
 			saveButton.setEnabled(handler.isDirty());
 		});
 		explicitRolesCombo.addValueChangeListener(e -> {
-			Set<Long> roleIds = e.getValue().stream()
+			var roleIds = e.getValue().stream()
 					.map(SettingsService.GuildRole::id)
 					.collect(Collectors.toSet());
 			handler.updateCurrentExplicitRoles(name, roleIds);
 			saveButton.setEnabled(handler.isDirty());
 		});
 
-		Div commandBlock = new Div();
+		var commandBlock = new Div();
 		commandBlock.getStyle()
 				.set("padding", "var(--lumo-space-xs) var(--lumo-space-s)")
 				.set("border", "1px solid var(--lumo-contrast-10pct)")
 				.set("border-radius", "var(--lumo-border-radius-m)")
 				.set("margin-bottom", "var(--lumo-space-xs)");
 
-		Span commandLabel = new Span("/" + name);
+		var commandLabel = new Span("/" + name);
 		commandLabel.getStyle()
 				.set("font-weight", "600")
 				.set("font-size", "var(--lumo-font-size-s)")
 				.set("color", "var(--lumo-primary-text-color)");
 
-		FormLayout fields = new FormLayout();
+		var fields = new FormLayout();
 		fields.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep(TWO_COLUMN_BREAKPOINT, 2));
 		fields.add(minRoleCombo, explicitRolesCombo);
 
@@ -132,7 +132,7 @@ public class CommandPermissionsCard extends SettingsCard {
 			}
 
 			if (!state.getInitialExplicitRoleIds().isEmpty()) {
-				List<SettingsService.GuildRole> roles = handler.getGuildRolesByIds(state.getInitialExplicitRoleIds());
+				var roles = handler.getGuildRolesByIds(state.getInitialExplicitRoleIds());
 				explicitRolesCombo.setItems(roles);
 				explicitRolesCombo.setValue(new HashSet<>(roles));
 			} else {
@@ -146,7 +146,7 @@ public class CommandPermissionsCard extends SettingsCard {
 	private <C extends ComboBoxBase<C, SettingsService.GuildRole, ?>> void configureRolesComboBox(C comboBox) {
 		comboBox.setItemLabelGenerator(SettingsService.GuildRole::name);
 		comboBox.setRenderer(new ComponentRenderer<>(role -> {
-			Span dot = new Span();
+			var dot = new Span();
 			dot.getStyle()
 					.set("display", "inline-block")
 					.set("width", "10px").set("height", "10px")
@@ -181,11 +181,11 @@ public class CommandPermissionsCard extends SettingsCard {
 
 		for (MultiSelectComboBox<SettingsService.GuildRole> comboBox : allMultiRoleComboBoxes) {
 			Set<SettingsService.GuildRole> currentValue = comboBox.getValue();
-			Set<Long> prevIds = currentValue.stream()
+			var prevIds = currentValue.stream()
 					.map(SettingsService.GuildRole::id)
 					.collect(Collectors.toSet());
 			comboBox.setItems(roles);
-			Set<SettingsService.GuildRole> restored = roles.stream()
+			var restored = roles.stream()
 					.filter(r -> prevIds.contains(r.id()))
 					.collect(Collectors.toSet());
 			comboBox.setValue(restored);

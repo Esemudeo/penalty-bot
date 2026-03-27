@@ -36,7 +36,7 @@ public class GlobalSettingsCard extends SettingsCard {
 		paypalField.setValueChangeMode(ValueChangeMode.EAGER);
 		paypalField.setWidthFull();
 
-		Span paypalPreview = new Span();
+		var paypalPreview = new Span();
 		paypalPreview.getStyle()
 				.set("color", "var(--lumo-secondary-text-color)")
 				.set("font-size", "var(--lumo-font-size-s)");
@@ -77,13 +77,13 @@ public class GlobalSettingsCard extends SettingsCard {
 					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		});
 
-		FormLayout form = new FormLayout();
+		var form = new FormLayout();
 		form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		form.add(paypalField);
 		form.add(paypalPreview);
 		form.add(notificationChannelComboBox);
 
-		Div buttonWrapper = new Div(saveButton);
+		var buttonWrapper = new Div(saveButton);
 		buttonWrapper.getStyle().set("margin-top", "var(--lumo-space-m)");
 
 		add(form, buttonWrapper);

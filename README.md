@@ -87,3 +87,4 @@ Easily start your REST Web Services
 - roles for receiving reports
 - be able to reset selected roles in multi selects
 - dark mode
+- role for negative penalties

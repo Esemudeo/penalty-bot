@@ -27,7 +27,7 @@ public class CommandPermissionsHandler {
 		this.commandPermissions = commandPermissions;
 
 		for (CommandPermission cp : commandPermissions) {
-			CommandPermissionState state = new CommandPermissionState();
+			var state = new CommandPermissionState();
 			state.setCommandName(cp.getCommandName());
 			state.setInitialMinRoleId(cp.getMinRoleId());
 			state.setInitialExplicitRoleIds(cp.getExplicitRoles().stream()

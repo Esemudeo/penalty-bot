@@ -74,7 +74,7 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 				.set("box-sizing", "border-box")
 				.set("overflow-x", "hidden");
 
-		Div content = new Div();
+		var content = new Div();
 		content.getStyle()
 				.set("max-width", CONTENT_MAX_WIDTH)
 				.set("width", "100%")
@@ -84,14 +84,14 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 		content.add(buildHeader());
 
 		// Load data
-		List<CommandPermission> commandPermissions = settingsService.getCommands();
-		Optional<GlobalGuildConfig> globalConfig = settingsService.getGlobalConfig();
-		List<PenaltyType> penaltyTypes = settingsService.getAllPenaltyTypes();
+		var commandPermissions = settingsService.getCommands();
+		var globalConfig = settingsService.getGlobalConfig();
+		var penaltyTypes = settingsService.getAllPenaltyTypes();
 
 		// Create handlers (logic)
-		CommandPermissionsHandler cpHandler = new CommandPermissionsHandler(commandPermissions, settingsService);
-		PenaltyTypesHandler ptHandler = new PenaltyTypesHandler(penaltyTypes, settingsService);
-		GlobalSettingsHandler gsHandler = new GlobalSettingsHandler(globalConfig, settingsService);
+		var cpHandler = new CommandPermissionsHandler(commandPermissions, settingsService);
+		var ptHandler = new PenaltyTypesHandler(penaltyTypes, settingsService);
+		var gsHandler = new GlobalSettingsHandler(globalConfig, settingsService);
 
 		// Create cards (UI)
 		commandPermissionsCard = new CommandPermissionsCard(cpHandler);
@@ -99,20 +99,20 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 		globalSettingsCard = new GlobalSettingsCard(gsHandler);
 
 		// Two-column layout
-		Div columnsRow = new Div();
+		var columnsRow = new Div();
 		columnsRow.getStyle()
 				.set("display", "flex")
 				.set("gap", "var(--lumo-space-s)")
 				.set("align-items", "flex-start")
 				.set("flex-wrap", "wrap");
 
-		Div leftColumn = new Div();
+		var leftColumn = new Div();
 		leftColumn.getStyle()
 				.set("flex", COLUMN_FLEX_BASIS)
 				.set("min-width", "0");
 		leftColumn.add(commandPermissionsCard);
 
-		Div rightColumn = new Div();
+		var rightColumn = new Div();
 		rightColumn.getStyle()
 				.set("flex", COLUMN_FLEX_BASIS)
 				.set("min-width", "0");
@@ -126,20 +126,20 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 	}
 
 	private Div buildHeader() {
-		Div header = new Div();
+		var header = new Div();
 		header.getStyle().set("margin-bottom", "var(--lumo-space-s)");
 
-		H2 heading = new H2("Penalty Bot Server Settings");
+		var heading = new H2("Penalty Bot Server Settings");
 		heading.getStyle()
 				.set("margin", "0")
 				.set("font-size", "var(--lumo-font-size-xl)");
 
-		Span guildName = new Span(settingsService.getGuildName());
+		var guildName = new Span(settingsService.getGuildName());
 		guildName.getStyle()
 				.set("font-size", "var(--lumo-font-size-m)")
 				.set("color", "var(--lumo-secondary-text-color)");
 
-		Paragraph welcome = new Paragraph("Welcome, %s!".formatted(settingsService.getMemberDisplayName()));
+		var welcome = new Paragraph("Welcome, %s!".formatted(settingsService.getMemberDisplayName()));
 		welcome.getStyle()
 				.set("margin", "var(--lumo-space-xs) 0 0 0")
 				.set("color", "var(--lumo-secondary-text-color)")

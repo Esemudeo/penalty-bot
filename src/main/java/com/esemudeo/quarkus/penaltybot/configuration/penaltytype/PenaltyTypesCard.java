@@ -78,7 +78,7 @@ public class PenaltyTypesCard extends SettingsCard {
 			refreshGrid();
 		});
 
-		FlexLayout buttons = new FlexLayout(addButton, saveButton, cancelButton);
+		var buttons = new FlexLayout(addButton, saveButton, cancelButton);
 		buttons.setFlexWrap(FlexLayout.FlexWrap.WRAP);
 		buttons.getStyle()
 				.set("gap", "var(--lumo-space-s)")
@@ -89,7 +89,7 @@ public class PenaltyTypesCard extends SettingsCard {
 	}
 
 	private Checkbox buildDefaultToggle(PenaltyTypesHandler.PenaltyTypeEntry entry) {
-		Checkbox toggle = new Checkbox();
+		var toggle = new Checkbox();
 		toggle.setValue(entry.isDefaultType());
 		long activeCount = handler.getWorkingCopy().stream()
 				.filter(PenaltyTypesHandler.PenaltyTypeEntry::isActive).count();
@@ -104,7 +104,7 @@ public class PenaltyTypesCard extends SettingsCard {
 	}
 
 	private ToggleButton buildActiveToggle(PenaltyTypesHandler.PenaltyTypeEntry entry) {
-		ToggleButton toggle = new ToggleButton();
+		var toggle = new ToggleButton();
 		toggle.setValue(entry.isActive());
 		toggle.setEnabled(handler.canDeleteOrToggle());
 		toggle.addValueChangeListener(e -> {
@@ -116,7 +116,7 @@ public class PenaltyTypesCard extends SettingsCard {
 	}
 
 	private HorizontalLayout buildActionButtons(PenaltyTypesHandler.PenaltyTypeEntry entry) {
-		Button editButton = new Button(new Icon(VaadinIcon.EDIT));
+		var editButton = new Button(new Icon(VaadinIcon.EDIT));
 		editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
 		editButton.getStyle()
 				.set("border-radius", "var(--lumo-border-radius-l)")
@@ -124,7 +124,7 @@ public class PenaltyTypesCard extends SettingsCard {
 				.set("color", "var(--lumo-primary-text-color)");
 		editButton.addClickListener(e -> openDialog(entry));
 
-		Button deleteButton = new Button(new Icon(VaadinIcon.TRASH));
+		var deleteButton = new Button(new Icon(VaadinIcon.TRASH));
 		deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
 		deleteButton.getStyle()
 				.set("border-radius", "var(--lumo-border-radius-l)")
@@ -133,26 +133,26 @@ public class PenaltyTypesCard extends SettingsCard {
 		deleteButton.setEnabled(handler.canDeleteOrToggle());
 		deleteButton.addClickListener(e -> confirmDelete(entry));
 
-		HorizontalLayout actions = new HorizontalLayout(editButton, deleteButton);
+		var actions = new HorizontalLayout(editButton, deleteButton);
 		actions.setSpacing(false);
 		actions.getStyle().set("gap", "var(--lumo-space-xs)");
 		return actions;
 	}
 
 	private void openDialog(PenaltyTypesHandler.PenaltyTypeEntry existing) {
-		Dialog dialog = new Dialog();
+		var dialog = new Dialog();
 		dialog.setHeaderTitle(existing != null ? "Edit Penalty Type" : "Add Penalty Type");
 		dialog.setWidth(DIALOG_WIDTH);
 
-		TextField nameField = new TextField("Name");
+		var nameField = new TextField("Name");
 		nameField.setWidthFull();
 
-		IntegerField priceField = new IntegerField("Price (in cents)");
+		var priceField = new IntegerField("Price (in cents)");
 		priceField.setValueChangeMode(ValueChangeMode.EAGER);
 		priceField.setWidthFull();
 		priceField.setClearButtonVisible(true);
 
-		Span pricePreview = new Span();
+		var pricePreview = new Span();
 		pricePreview.getStyle()
 				.set("color", "var(--lumo-secondary-text-color)")
 				.set("font-size", "var(--lumo-font-size-s)");
@@ -161,7 +161,7 @@ public class PenaltyTypesCard extends SettingsCard {
 			pricePreview.setText(cents != null ? PenaltyTypesHandler.formatCentsAsEuro(cents) : "");
 		});
 
-		Checkbox defaultToggle = new Checkbox("Default type");
+		var defaultToggle = new Checkbox("Default type");
 
 		if (existing != null) {
 			nameField.setValue(existing.getDisplayName() != null ? existing.getDisplayName() : "");
@@ -169,11 +169,11 @@ public class PenaltyTypesCard extends SettingsCard {
 			defaultToggle.setValue(existing.isDefaultType());
 		}
 
-		FormLayout form = new FormLayout();
+		var form = new FormLayout();
 		form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		form.add(nameField, priceField, pricePreview, defaultToggle);
 
-		Button saveBtn = new Button("Save");
+		var saveBtn = new Button("Save");
 		saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveBtn.addClickListener(e -> {
 			String name = nameField.getValue();
@@ -199,7 +199,7 @@ public class PenaltyTypesCard extends SettingsCard {
 			dialog.close();
 		});
 
-		Button cancelBtn = new Button("Cancel", e -> dialog.close());
+		var cancelBtn = new Button("Cancel", e -> dialog.close());
 
 		dialog.getFooter().add(cancelBtn, saveBtn);
 		dialog.add(form);
@@ -207,7 +207,7 @@ public class PenaltyTypesCard extends SettingsCard {
 	}
 
 	private void confirmDelete(PenaltyTypesHandler.PenaltyTypeEntry entry) {
-		ConfirmDialog dialog = new ConfirmDialog();
+		var dialog = new ConfirmDialog();
 		dialog.setHeader("Delete Penalty Type");
 		dialog.setText("Are you sure you want to delete \"%s\"?".formatted(entry.getDisplayName()));
 		dialog.setCancelable(true);

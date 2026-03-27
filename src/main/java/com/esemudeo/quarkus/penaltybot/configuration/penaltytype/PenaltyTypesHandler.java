@@ -103,7 +103,7 @@ public class PenaltyTypesHandler {
 	}
 
 	public void save() {
-		List<Long> workingIds = workingCopy.stream()
+		var workingIds = workingCopy.stream()
 				.map(PenaltyTypeEntry::getEntityId)
 				.filter(Objects::nonNull)
 				.toList();
