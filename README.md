@@ -162,7 +162,6 @@ com.esemudeo.quarkus.penaltybot/
 ## Roadmap
 
 - Roles for receiving penalty reports
-- Dark mode for admin panel
 - Support for negative penalties (credits)
 - Auto-delete notification messages after a configurable time
 - Permission checks before sending to notification channel (graceful error handling)

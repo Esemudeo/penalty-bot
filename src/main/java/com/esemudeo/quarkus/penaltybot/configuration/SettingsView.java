@@ -9,10 +9,15 @@ import com.esemudeo.quarkus.penaltybot.configuration.global.model.GlobalGuildCon
 import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.PenaltyTypesCard;
 import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.PenaltyTypesHandler;
 import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -30,6 +35,13 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 
 	private static final String CONTENT_MAX_WIDTH = "1200px";
 	private static final String COLUMN_FLEX_BASIS = "1 1 400px";
+	private static final String LUMO_DARK_THEME = "dark";
+
+	// Checks if the browser's system color scheme preference is set to dark
+	private static final String JS_PREFERS_DARK_MODE = "return window.matchMedia('(prefers-color-scheme:dark)').matches";
+
+	private static final String DARK_MODE_LABEL = "To the dark room";
+	private static final String LIGHT_MODE_LABEL = "Back to the light";
 
 	@Inject
 	AuthSession authSession;
@@ -40,6 +52,7 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 	private CommandPermissionsCard commandPermissionsCard;
 	private PenaltyTypesCard penaltyTypesCard;
 	private GlobalSettingsCard globalSettingsCard;
+	private Button darkModeToggle;
 
 	private boolean initialized;
 
@@ -67,11 +80,9 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 		setPadding(false);
 		setSpacing(false);
 		setAlignItems(FlexComponent.Alignment.CENTER);
+		setSizeFull();
 		getStyle()
 				.set("background-color", "var(--lumo-shade-5pct)")
-				.set("min-height", "100vh")
-				.set("width", "100%")
-				.set("box-sizing", "border-box")
 				.set("overflow-x", "hidden");
 
 		var content = new Div();
@@ -139,20 +150,59 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 				.set("font-size", "var(--lumo-font-size-m)")
 				.set("color", "var(--lumo-secondary-text-color)");
 
+		darkModeToggle = new Button(DARK_MODE_LABEL, new Icon(VaadinIcon.MOON));
+		darkModeToggle.addClickListener(e -> toggleDarkMode());
+
+		var topRow = new Div();
+		topRow.getStyle()
+				.set("display", "flex")
+				.set("justify-content", "space-between")
+				.set("align-items", "center")
+				.set("padding-right", "var(--lumo-space-m)");
+
+		var titleBlock = new Div(heading, guildName);
+		topRow.add(titleBlock, darkModeToggle);
+
 		var welcome = new Paragraph("Welcome, %s!".formatted(settingsService.getMemberDisplayName()));
 		welcome.getStyle()
 				.set("margin", "var(--lumo-space-xs) 0 0 0")
 				.set("color", "var(--lumo-secondary-text-color)")
 				.set("font-size", "var(--lumo-font-size-s)");
 
-		header.add(heading, guildName, welcome);
+		header.add(topRow, welcome);
 		return header;
+	}
+
+	private void toggleDarkMode() {
+		var themeList = UI.getCurrent().getElement().getThemeList();
+		boolean switchToDark = !themeList.contains(LUMO_DARK_THEME);
+		if (switchToDark) {
+			themeList.add(LUMO_DARK_THEME);
+		} else {
+			themeList.remove(LUMO_DARK_THEME);
+		}
+		updateDarkModeButton(switchToDark);
+	}
+
+	private void updateDarkModeButton(boolean isDark) {
+		darkModeToggle.setText(isDark ? LIGHT_MODE_LABEL : DARK_MODE_LABEL);
+		darkModeToggle.setIcon(new Icon(isDark ? VaadinIcon.SUN_O : VaadinIcon.MOON));
+	}
+
+	private void syncDarkModeWithSystemPreference() {
+		UI.getCurrent().getPage().executeJs(JS_PREFERS_DARK_MODE).then(Boolean.class, isDark -> {
+			if (isDark) {
+				UI.getCurrent().getElement().getThemeList().add(LUMO_DARK_THEME);
+				updateDarkModeButton(true);
+			}
+		});
 	}
 
 	private void applyInitialState() {
 		commandPermissionsCard.applyInitialState();
 		penaltyTypesCard.applyInitialState();
 		globalSettingsCard.applyInitialState();
+		syncDarkModeWithSystemPreference();
 	}
 
 	private boolean tryAuthenticateFromToken(BeforeEnterEvent event) {
