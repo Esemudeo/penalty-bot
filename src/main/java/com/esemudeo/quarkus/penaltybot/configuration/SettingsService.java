@@ -118,12 +118,15 @@ public class SettingsService {
                 .toList();
     }
 
+    private static final String HEX_COLOR_FORMAT = "#%06X";
+    private static final int RGB_MASK = 0xFFFFFF;
+
     private String roleHexColor(Role role) {
         RoleColors colors = role.getColors();
         if (colors.isDefault()) {
             return null;
         }
-        return String.format("#%06X", colors.getPrimaryRaw() & 0xFFFFFF);
+        return String.format(HEX_COLOR_FORMAT, colors.getPrimaryRaw() & RGB_MASK);
     }
 
     // --- Penalty types ---

@@ -27,6 +27,7 @@ public class CommandPermissionsCard extends SettingsCard {
 
 	private static final String DISCORD_DEFAULT_ROLE_COLOR = "#99AAB5";
 	private static final String OPENED_PROPERTY = "opened";
+	private static final String TWO_COLUMN_BREAKPOINT = "500px";
 
 	private final CommandPermissionsHandler handler;
 
@@ -54,7 +55,7 @@ public class CommandPermissionsCard extends SettingsCard {
 		saveButton.addClickListener(e -> {
 			handler.save();
 			saveButton.setEnabled(false);
-			Notification.show("Command permissions saved.", 3000, Notification.Position.BOTTOM_START)
+			Notification.show("Command permissions saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
 					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		});
 
@@ -104,7 +105,7 @@ public class CommandPermissionsCard extends SettingsCard {
 				.set("color", "var(--lumo-primary-text-color)");
 
 		FormLayout fields = new FormLayout();
-		fields.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep("500px", 2));
+		fields.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1), new FormLayout.ResponsiveStep(TWO_COLUMN_BREAKPOINT, 2));
 		fields.add(minRoleCombo, explicitRolesCombo);
 
 		commandBlock.add(commandLabel, fields);

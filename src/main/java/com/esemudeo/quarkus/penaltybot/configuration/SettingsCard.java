@@ -5,6 +5,8 @@ import com.vaadin.flow.component.html.H3;
 
 public abstract class SettingsCard extends Div {
 
+	protected static final int NOTIFICATION_DURATION_MS = 3000;
+
 	protected SettingsCard(String title) {
 		getStyle()
 				.set("background-color", "var(--lumo-base-color)")

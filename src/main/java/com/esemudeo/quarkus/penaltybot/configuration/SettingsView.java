@@ -28,6 +28,9 @@ import java.util.Optional;
 @PreserveOnRefresh
 public class SettingsView extends VerticalLayout implements BeforeEnterObserver {
 
+	private static final String CONTENT_MAX_WIDTH = "1200px";
+	private static final String COLUMN_FLEX_BASIS = "1 1 400px";
+
 	@Inject
 	AuthSession authSession;
 
@@ -73,7 +76,7 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 
 		Div content = new Div();
 		content.getStyle()
-				.set("max-width", "1200px")
+				.set("max-width", CONTENT_MAX_WIDTH)
 				.set("width", "100%")
 				.set("padding", "var(--lumo-space-m)")
 				.set("box-sizing", "border-box");
@@ -105,13 +108,13 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 
 		Div leftColumn = new Div();
 		leftColumn.getStyle()
-				.set("flex", "1 1 400px")
+				.set("flex", COLUMN_FLEX_BASIS)
 				.set("min-width", "0");
 		leftColumn.add(commandPermissionsCard);
 
 		Div rightColumn = new Div();
 		rightColumn.getStyle()
-				.set("flex", "1 1 400px")
+				.set("flex", COLUMN_FLEX_BASIS)
 				.set("min-width", "0");
 		rightColumn.add(penaltyTypesCard);
 		rightColumn.add(globalSettingsCard);

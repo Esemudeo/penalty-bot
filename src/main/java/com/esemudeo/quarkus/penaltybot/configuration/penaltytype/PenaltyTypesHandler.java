@@ -13,6 +13,8 @@ import java.util.Objects;
 public class PenaltyTypesHandler {
 
 	private static final int MAX_PENALTY_TYPES = 15;
+	private static final int CENTS_PER_EURO = 100;
+	private static final String EURO_FORMAT = "%d.%02d €";
 
 	private final SettingsService settingsService;
 	private List<PenaltyType> initialPenaltyTypes;
@@ -201,7 +203,7 @@ public class PenaltyTypesHandler {
 	}
 
 	public static String formatCentsAsEuro(int cents) {
-		return "%d.%02d €".formatted(cents / 100, Math.abs(cents % 100));
+		return EURO_FORMAT.formatted(cents / CENTS_PER_EURO, Math.abs(cents % CENTS_PER_EURO));
 	}
 
 	@Getter

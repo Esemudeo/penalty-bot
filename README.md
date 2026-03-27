@@ -84,11 +84,6 @@ Easily start your REST Web Services
 
 # TODOs
 
-- configuration page for following stuff
-    - penalty types
-    - channel to use for messages
-    - paypal link
-    - roles for reporting, operating, managing
-    - roles for receiving reports
+- roles for receiving reports
 - be able to reset selected roles in multi selects
-- be able to use other channel for responses
+- dark mode

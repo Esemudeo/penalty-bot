@@ -23,6 +23,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 
 public class PenaltyTypesCard extends SettingsCard {
 
+	private static final String DIALOG_WIDTH = "min(500px, 90vw)";
+
 	private final PenaltyTypesHandler handler;
 
 	private Grid<PenaltyTypesHandler.PenaltyTypeEntry> grid;
@@ -65,7 +67,7 @@ public class PenaltyTypesCard extends SettingsCard {
 		saveButton.addClickListener(e -> {
 			handler.save();
 			refreshGrid();
-			Notification.show("Penalty types saved.", 3000, Notification.Position.BOTTOM_START)
+			Notification.show("Penalty types saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
 					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		});
 
@@ -140,7 +142,7 @@ public class PenaltyTypesCard extends SettingsCard {
 	private void openDialog(PenaltyTypesHandler.PenaltyTypeEntry existing) {
 		Dialog dialog = new Dialog();
 		dialog.setHeaderTitle(existing != null ? "Edit Penalty Type" : "Add Penalty Type");
-		dialog.setWidth("min(500px, 90vw)");
+		dialog.setWidth(DIALOG_WIDTH);
 
 		TextField nameField = new TextField("Name");
 		nameField.setWidthFull();

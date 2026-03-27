@@ -24,6 +24,8 @@ import java.util.Optional;
 public class PenaltySummaryModalListener extends ModalListener implements YearMonthModalTrait {
 
 	private static final int MAX_MESSAGE_LENGTH = 1900;
+	private static final double CENTS_PER_EURO = 100.0;
+	private static final String EURO_AMOUNT_FORMAT = "%.2f";
 
 	@Inject
 	PenaltyRepository penaltyRepository;
@@ -77,7 +79,7 @@ public class PenaltySummaryModalListener extends ModalListener implements YearMo
 					.sum();
 
 			if (totalCents > 0) {
-				String euroAmount = "%.2f".formatted(totalCents / 100.0);
+				String euroAmount = EURO_AMOUNT_FORMAT.formatted(totalCents / CENTS_PER_EURO);
 				block.append("Total: €").append(euroAmount);
 				paypalUsername.ifPresent(username ->
 						block.append(" → <https://paypal.me/").append(username).append("/").append(euroAmount).append("EUR>"));

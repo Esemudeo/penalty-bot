@@ -73,7 +73,7 @@ public class GlobalSettingsCard extends SettingsCard {
 					: null;
 			handler.save(paypalField.getValue(), channelId);
 			saveButton.setEnabled(false);
-			Notification.show("Common settings saved.", 3000, Notification.Position.BOTTOM_START)
+			Notification.show("Common settings saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
 					.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		});
 
