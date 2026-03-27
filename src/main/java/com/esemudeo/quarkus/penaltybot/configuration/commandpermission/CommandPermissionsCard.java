@@ -74,6 +74,7 @@ public class CommandPermissionsCard extends SettingsCard {
 		allSingleRoleComboBoxes.add(minRoleCombo);
 
 		var explicitRolesCombo = new MultiSelectComboBox<SettingsService.GuildRole>("Explicit roles");
+		explicitRolesCombo.setClearButtonVisible(true);
 		configureRolesComboBox(explicitRolesCombo);
 		explicitRoleComboBoxes.put(name, explicitRolesCombo);
 		allMultiRoleComboBoxes.add(explicitRolesCombo);
