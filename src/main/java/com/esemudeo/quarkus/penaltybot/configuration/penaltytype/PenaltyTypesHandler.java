@@ -94,10 +94,7 @@ public class PenaltyTypesHandler {
 			if (entry.getEntityId() == null) {
 				return true;
 			}
-			PenaltyType original = initialPenaltyTypes.stream()
-					.filter(pt -> pt.id.equals(entry.getEntityId()))
-					.findFirst()
-					.orElse(null);
+			PenaltyType original = findOriginalById(entry.getEntityId());
 			if (original == null || entryDiffersFromEntity(entry, original)) {
 				return true;
 			}
@@ -124,10 +121,7 @@ public class PenaltyTypesHandler {
 
 		for (PenaltyTypeEntry entry : workingCopy) {
 			if (entry.getEntityId() != null) {
-				PenaltyType original = initialPenaltyTypes.stream()
-						.filter(pt -> pt.id.equals(entry.getEntityId()))
-						.findFirst()
-						.orElse(null);
+				PenaltyType original = findOriginalById(entry.getEntityId());
 				if (original != null && entryDiffersFromEntity(entry, original)) {
 					settingsService.updatePenaltyType(
 							entry.getEntityId(), entry.getDisplayName(), entry.isDefaultType(), entry.getPrice(), entry.isActive()
@@ -193,6 +187,13 @@ public class PenaltyTypesHandler {
 
 	private void enforceConstraints() {
 		enforceConstraints(null);
+	}
+
+	private PenaltyType findOriginalById(Long id) {
+		return initialPenaltyTypes.stream()
+				.filter(pt -> pt.id.equals(id))
+				.findFirst()
+				.orElse(null);
 	}
 
 	private boolean entryDiffersFromEntity(PenaltyTypeEntry entry, PenaltyType entity) {
