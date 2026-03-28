@@ -9,12 +9,16 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class PenaltyTypesHandler {
 
 	private static final int MAX_PENALTY_TYPES = 15;
 	private static final int CENTS_PER_EURO = 100;
 	private static final String EURO_FORMAT = "%d.%02d €";
+
+	static final String DISPLAY_NAME_PATTERN = "[\\w\\s()\\-]+";
+	private static final Pattern DISPLAY_NAME_REGEX = Pattern.compile("^" + DISPLAY_NAME_PATTERN + "$", Pattern.UNICODE_CHARACTER_CLASS);
 
 	private final SettingsService settingsService;
 	private List<PenaltyType> initialPenaltyTypes;
@@ -78,6 +82,10 @@ public class PenaltyTypesHandler {
 		}
 		entry.setDefaultType(isDefault);
 		enforceConstraints(entry);
+	}
+
+	public boolean isValidDisplayName(String name) {
+		return name != null && !name.isBlank() && DISPLAY_NAME_REGEX.matcher(name.trim()).matches();
 	}
 
 	public boolean isNameDuplicate(String name, PenaltyTypeEntry excludeEntry) {

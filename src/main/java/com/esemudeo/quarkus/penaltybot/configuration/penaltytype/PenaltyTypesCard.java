@@ -140,6 +140,9 @@ public class PenaltyTypesCard extends SettingsCard {
 		dialog.setWidth(DIALOG_WIDTH);
 
 		var nameField = new TextField("Name");
+		nameField.setValueChangeMode(ValueChangeMode.EAGER);
+		nameField.setPattern(PenaltyTypesHandler.DISPLAY_NAME_PATTERN);
+		nameField.setErrorMessage("Only a-z, A-Z, 0-9, spaces, (), - and _ are allowed.");
 		nameField.setWidthFull();
 
 		var priceField = new IntegerField("Price (in cents)");
@@ -205,9 +208,9 @@ public class PenaltyTypesCard extends SettingsCard {
 	private void submitDialogEntry(PenaltyTypesHandler.PenaltyTypeEntry existing,
 								   TextField nameField, Checkbox defaultToggle, IntegerField priceField, Dialog dialog) {
 		String name = nameField.getValue();
-		if (name == null || name.isBlank()) {
+		if (!handler.isValidDisplayName(name)) {
 			nameField.setInvalid(true);
-			nameField.setErrorMessage("Name is required");
+			nameField.setErrorMessage("Name is required. Only a-z, A-Z, 0-9, spaces, (), - and _ are allowed.");
 			return;
 		}
 		if (handler.isNameDuplicate(name, existing)) {
