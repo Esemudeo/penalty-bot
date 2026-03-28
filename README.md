@@ -58,21 +58,10 @@ If you prefer to host your own instance, follow the instructions below.
 
 ### 2. Configure Environment Variables
 
-Create a `.env` file in the project root:
+Copy the example file and fill in your values:
 
-```env
-DISCORD_BOT_TOKEN=your-bot-token
-DISCORD_CLIENT_ID=your-client-id
-DISCORD_CLIENT_SECRET=your-client-secret
-DISCORD_REDIRECT_URI=http://localhost:8080/oauth/callback
-APP_BASE_URL=http://localhost:8080
-```
-
-For production, also set:
-
-```env
-DB_JDBC_URL=jdbc:postgresql://localhost:5432/penaltybot
-DB_PASSWORD=your-db-password
+```bash
+cp .env.example .env
 ```
 
 > In dev mode, `DB_JDBC_URL` and `DB_PASSWORD` are optional — Quarkus Dev Services spins up a PostgreSQL container
