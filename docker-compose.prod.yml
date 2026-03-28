@@ -1,6 +1,7 @@
 services:
   penalty-bot:
     image: penalty-bot:latest
+    pull_policy: never
     env_file: .env
     environment:
       DB_JDBC_URL: ${DB_JDBC_URL:-jdbc:postgresql://db:5432/penalty-bot}
