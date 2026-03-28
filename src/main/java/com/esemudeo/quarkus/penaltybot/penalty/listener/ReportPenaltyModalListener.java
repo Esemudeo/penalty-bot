@@ -1,17 +1,18 @@
 package com.esemudeo.quarkus.penaltybot.penalty.listener;
 
-import jakarta.annotation.Nonnull;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import com.esemudeo.quarkus.penaltybot.configuration.global.model.GlobalGuildConfig;
 import com.esemudeo.quarkus.penaltybot.configuration.global.repository.GlobalGuildConfigRepository;
 import com.esemudeo.quarkus.penaltybot.penalty.command.ReportPenaltyCommand;
 import com.esemudeo.quarkus.penaltybot.penalty.model.Penalty;
 import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository;
+import jakarta.annotation.Nonnull;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -44,6 +45,12 @@ public class ReportPenaltyModalListener extends ModalListener implements MemberM
 			amount = Integer.parseInt(amountRaw);
 			if (amount == 0) {
 				throw new NumberFormatException();
+			}
+			Member author = Objects.requireNonNull(event.getMember());
+			boolean isNoAdmin = !author.isOwner() || !author.hasPermission(Permission.ADMINISTRATOR);
+			if (amount < 0 && isNoAdmin) {
+				event.reply("You are not allowed to reduce penalties. Contact an admin for that, please.").setEphemeral(true).queue();
+				return;
 			}
 		} catch (NumberFormatException e) {
 			event.reply("Invalid amount: " + amountRaw).setEphemeral(true).queue();
