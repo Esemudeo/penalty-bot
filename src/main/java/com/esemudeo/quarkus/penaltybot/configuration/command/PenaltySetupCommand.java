@@ -22,7 +22,7 @@ public class PenaltySetupCommand implements SlashCommand {
 
 	private static final Logger LOG = Logger.getLogger(PenaltySetupCommand.class);
 
-	private static final int TOKEN_VALIDITY_MINUTES = 10;
+	private static final int TOKEN_VALIDITY_MINUTES = 5;
 	private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
 	@Inject
