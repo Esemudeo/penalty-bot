@@ -116,17 +116,41 @@ Authentication uses Discord OAuth2 — only guild members with sufficient permis
 java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-A [`docker-compose.yml`](docker-compose.yml) is included that bundles the bot with a PostgreSQL instance:
+### Docker Deployment
+
+Two Docker Compose files are included. Rename the one you need to `docker-compose.yml`:
+
+| File                                                   | Purpose                                                                                         |
+|--------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| [`docker-compose.build.yml`](docker-compose.build.yml) | Builds the Docker image locally from source (`build:`)                                          |
+| [`docker-compose.prod.yml`](docker-compose.prod.yml)   | Uses a pre-built image (`image: penalty-bot:latest`) and includes a bundled PostgreSQL instance |
+
+**Option A — Build locally and run:**
 
 ```bash
-# Build and start (includes bundled PostgreSQL)
-./mvnw package
-docker compose up -d --build
-
-# If you already have a database, set DB_JDBC_URL in your .env,
-# remove the db service from docker-compose.yml, and run:
+cp docker-compose.build.yml docker-compose.yml
+./mvnw package -DskipTests
 docker compose up -d --build
 ```
+
+**Option B — Deploy a pre-built image (e.g. on a server):**
+
+```bash
+# On your build machine:
+./mvnw package -DskipTests
+docker build -f src/main/docker/Dockerfile.jvm -t penalty-bot:1.0.0 .
+docker save penalty-bot:1.0.0 | gzip > penalty-bot-1.0.0.tar.gz
+scp penalty-bot-1.0.0.tar.gz your-server:~
+
+# On the server:
+docker load < penalty-bot-1.0.0.tar.gz
+cp docker-compose.prod.yml docker-compose.yml
+# Create .env with your configuration (see above)
+docker compose up -d
+```
+
+> If you already have a database, remove the `db` service from the compose file and set `DB_JDBC_URL` and `DB_PASSWORD`
+> in your `.env`.
 
 ## Project Structure
 
