@@ -1,7 +1,7 @@
 # Penalty Bot
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Invite Bot](https://img.shields.io/badge/Discord-Invite%20Bot-5865F2?logo=discord&logoColor=white)](https://discord.com/oauth2/authorize?client_id=1481017571552661524)
+[![Invite Bot](https://img.shields.io/badge/Discord-Invite%20Bot-5865F2?logo=discord&logoColor=white)](https://penaltybot.esemudeo.com/invite)
 
 A Discord bot for tracking penalties within guild communities. Members can report penalties, view individual or
 aggregated summaries, and guild admins can configure penalty types, permissions, and payment links through a web-based
@@ -10,8 +10,10 @@ admin panel.
 Built with Quarkus, JDA, and Vaadin.
 
 **Want to use the bot?** Click the "Invite Bot" badge above
-or [this link](https://discord.com/oauth2/authorize?client_id=1481017571552661524) to add a running instance to your
-Discord server — no setup required.
+or https://penaltybot.esemudeo.com/invite to add a running instance to your Discord server — no setup
+required. Alternatively, use
+the [direct Discord invite](https://discord.com/oauth2/authorize?client_id=1481017571552661524) if the redirect is
+unavailable.
 
 If you prefer to host your own instance, follow the instructions below.
 
@@ -116,7 +118,8 @@ Authentication uses Discord OAuth2 — only guild members with sufficient permis
 java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-The `-Pproduction` profile triggers the Vaadin frontend build (`prepare-frontend` + `build-frontend`) and excludes the Vaadin dev server. This is required for any deployment outside of dev mode.
+The `-Pproduction` profile triggers the Vaadin frontend build (`prepare-frontend` + `build-frontend`) and excludes the
+Vaadin dev server. This is required for any deployment outside of dev mode.
 
 ### Docker Deployment
 
