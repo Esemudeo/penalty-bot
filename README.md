@@ -110,11 +110,13 @@ Authentication uses Discord OAuth2 — only guild members with sufficient permis
 
 ```bash
 # Build
-./mvnw package
+./mvnw package -Pproduction
 
 # Run standalone
 java -jar target/quarkus-app/quarkus-run.jar
 ```
+
+The `-Pproduction` profile triggers the Vaadin frontend build (`prepare-frontend` + `build-frontend`) and excludes the Vaadin dev server. This is required for any deployment outside of dev mode.
 
 ### Docker Deployment
 
@@ -129,7 +131,7 @@ Two Docker Compose files are included. Rename the one you need to `docker-compos
 
 ```bash
 cp docker-compose.build.yml docker-compose.yml
-./mvnw package -DskipTests
+./mvnw package -Pproduction -DskipTests
 docker compose up -d --build
 ```
 
@@ -137,7 +139,7 @@ docker compose up -d --build
 
 ```bash
 # On your build machine:
-./mvnw package -DskipTests
+./mvnw package -Pproduction -DskipTests
 docker build -f src/main/docker/Dockerfile.jvm -t penalty-bot:1.0.0 .
 docker save penalty-bot:1.0.0 | gzip > penalty-bot-1.0.0.tar.gz
 scp penalty-bot-1.0.0.tar.gz your-server:~
