@@ -6,8 +6,13 @@ import com.esemudeo.quarkus.penaltybot.configuration.global.model.GlobalGuildCon
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.regex.Pattern;
 
 public class GlobalSettingsHandler {
+
+	static final String PAYPAL_USERNAME_PATTERN = "[a-zA-Z0-9._-]+";
+	private static final Pattern PAYPAL_USERNAME_REGEX = Pattern.compile("^" + PAYPAL_USERNAME_PATTERN + "$");
 
 	private final SettingsService settingsService;
 	private Optional<GlobalGuildConfig> initialConfig;
@@ -33,9 +38,16 @@ public class GlobalSettingsHandler {
 				|| !Objects.equals(currentChannelId, getInitialNotificationChannelId());
 	}
 
+	public boolean isValidPaypalUsername(String username) {
+		return username == null || PAYPAL_USERNAME_REGEX.matcher(username.trim()).matches();
+	}
+
 	public void save(String paypalUsername, Long notificationChannelId) {
 		String normalized = (paypalUsername != null && paypalUsername.isBlank()) ? null : paypalUsername;
-		settingsService.updatePaypalMeUsername(normalized);
+		if (!isValidPaypalUsername(normalized)) {
+			throw new IllegalArgumentException("Invalid PayPal.me username: only letters, digits, dots, hyphens and underscores are allowed.");
+		}
+		settingsService.updatePaypalMeUsername(normalized != null ? normalized.trim() : null);
 		settingsService.updateNotificationChannelId(notificationChannelId);
 		initialConfig = settingsService.getGlobalConfig();
 	}

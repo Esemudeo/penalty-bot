@@ -34,6 +34,8 @@ public class GlobalSettingsCard extends SettingsCard {
 	private void buildContent() {
 		paypalField = new TextField("PayPal.me Username");
 		paypalField.setValueChangeMode(ValueChangeMode.EAGER);
+		paypalField.setPattern(GlobalSettingsHandler.PAYPAL_USERNAME_PATTERN);
+		paypalField.setErrorMessage("Only a-z, A-Z, 0-9, . , - and _ are allowed.");
 		paypalField.setWidthFull();
 
 		var paypalPreview = new Span();
@@ -96,7 +98,9 @@ public class GlobalSettingsCard extends SettingsCard {
 		Long currentChannelId = notificationChannelComboBox.getValue() != null
 				? notificationChannelComboBox.getValue().id()
 				: null;
-		saveButton.setEnabled(handler.isDirty(paypalField.getValue(), currentChannelId));
+		boolean dirty = handler.isDirty(paypalField.getValue(), currentChannelId);
+		boolean valid = !paypalField.isInvalid();
+		saveButton.setEnabled(dirty && valid);
 	}
 
 	@Override
