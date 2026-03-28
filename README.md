@@ -7,8 +7,6 @@ A Discord bot for tracking penalties within guild communities. Members can repor
 aggregated summaries, and guild admins can configure penalty types, permissions, and payment links through a web-based
 admin panel.
 
-Built with Quarkus, JDA, and Vaadin.
-
 **Want to use the bot?** Click the "Invite Bot" badge above
 or https://penaltybot.esemudeo.com/invite to add a running instance to your Discord server — no setup
 required. Alternatively, use
