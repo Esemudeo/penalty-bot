@@ -185,6 +185,9 @@ com.esemudeo.quarkus.penaltybot/
 - Auto-delete notification messages after a configurable time
 - Permission checks before sending to notification channel (graceful error handling)
 - extend test environment
+- highlight unsaved contents
+- improve texts, maybe by question mark tools
+- sort penalty permission setup
 
 ## License
 
