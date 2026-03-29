@@ -7,14 +7,23 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CommandPermissionsHandler {
+
+	private static final Map<String, Integer> COMMAND_ORDER = Map.of(
+			"penalty", 0,
+			"penalty-show", 1,
+			"penalty-summary", 2,
+			"penalty-setup", 3
+	);
 
 	private final SettingsService settingsService;
 	private final List<CommandPermission> commandPermissions;
@@ -25,6 +34,8 @@ public class CommandPermissionsHandler {
 	public CommandPermissionsHandler(List<CommandPermission> commandPermissions, SettingsService settingsService) {
 		this.settingsService = settingsService;
 		this.commandPermissions = commandPermissions;
+		this.commandPermissions.sort(Comparator.comparingInt(
+				cp -> COMMAND_ORDER.getOrDefault(cp.getCommandName(), Integer.MAX_VALUE)));
 
 		for (CommandPermission cp : commandPermissions) {
 			var state = new CommandPermissionState();

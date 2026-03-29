@@ -187,7 +187,7 @@ com.esemudeo.quarkus.penaltybot/
 - extend test environment
 - highlight unsaved contents
 - improve texts, maybe by question mark tools
-- sort penalty permission setup
+- find better solution for order of command permissions
 
 ## License
 
