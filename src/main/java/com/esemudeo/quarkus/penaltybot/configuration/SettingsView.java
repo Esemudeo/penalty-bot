@@ -25,10 +25,10 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.Route;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.Optional;
-
+@Slf4j
 @Route("settings")
 @PreserveOnRefresh
 public class SettingsView extends VerticalLayout implements BeforeEnterObserver {
@@ -67,6 +67,7 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 			}
 			initialized = false;
 		} else {
+			log.warn("Settings access denied: no valid session nonce and no token");
 			event.forwardTo(ErrorView.class);
 			return;
 		}
@@ -78,6 +79,7 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 			}
 			applyInitialState();
 		} catch (Exception e) {
+			log.warn("Settings view error: {}", e.getMessage());
 			event.forwardTo(ErrorView.class);
 		}
 	}
@@ -220,11 +222,13 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 	private boolean tryAuthenticateFromToken(BeforeEnterEvent event) {
 		List<String> tokens = event.getLocation().getQueryParameters().getParameters().get("token");
 		if (tokens == null || tokens.isEmpty()) {
+			log.warn("Settings access denied: no token in URL");
 			event.forwardTo(ErrorView.class);
 			return false;
 		}
 		String nonce = settingsService.authenticateWithToken(tokens.getFirst());
 		if (nonce == null) {
+			log.warn("Settings access denied: invalid or expired token");
 			event.forwardTo(ErrorView.class);
 			return false;
 		}
