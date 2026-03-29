@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import com.esemudeo.quarkus.penaltybot.configuration.commandpermission.repository.CommandRepository;
@@ -25,7 +26,15 @@ public class GuildReadyListener extends ListenerAdapter {
 
 	@Override
 	public void onGuildReady(@Nonnull GuildReadyEvent event) {
-		long guildId = event.getGuild().getIdLong();
+		initializeGuildDefaults(event.getGuild().getIdLong());
+	}
+
+	@Override
+	public void onGuildJoin(@Nonnull GuildJoinEvent event) {
+		initializeGuildDefaults(event.getGuild().getIdLong());
+	}
+
+	private void initializeGuildDefaults(long guildId) {
 		provideDefaultPenaltyTypes(guildId);
 		provideDefaultCommandPermissions(guildId);
 	}
