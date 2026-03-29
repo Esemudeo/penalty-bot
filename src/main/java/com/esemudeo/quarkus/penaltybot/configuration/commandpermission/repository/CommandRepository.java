@@ -50,6 +50,8 @@ public class CommandRepository {
             return;
         }
         command.getExplicitRoles().clear();
+        // Flush deletes before inserting new roles to avoid unique constraint violations
+        CommandPermission.flush();
         roleIds.forEach(roleId -> command.getExplicitRoles().add(
                 CommandExplicitRole.builder()
                         .roleId(roleId)
