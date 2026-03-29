@@ -1,5 +1,7 @@
 package com.esemudeo.quarkus.penaltybot.configuration;
 
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
@@ -51,15 +53,15 @@ public class SettingsService {
 
     // --- Authentication ---
 
-    public boolean authenticateWithToken(String token) {
+    public String authenticateWithToken(String token) {
         ConfigSessionToken sessionToken = configSessionTokenRepository.findValidByToken(token).orElse(null);
         if (sessionToken == null) {
-            return false;
+            return null;
         }
         configSessionTokenRepository.markAsUsed(sessionToken.getToken());
         authSession.setUserId(sessionToken.getUserId());
         authSession.setGuildId(sessionToken.getGuildId());
-        return true;
+        return authSession.rotateNonce();
     }
 
     public String getGuildName() {
@@ -214,9 +216,17 @@ public class SettingsService {
 
     // ---
 
+    public void setUiNonce(String nonce) {
+        ComponentUtil.setData(UI.getCurrent(), String.class, nonce);
+    }
+
     private long guildId() {
         if (authSession.isNotAuthenticated()) {
             throw new SettingsAccessDeniedException("Not authenticated");
+        }
+        String uiNonce = ComponentUtil.getData(UI.getCurrent(), String.class);
+        if (!authSession.isActiveNonce(uiNonce)) {
+            throw new SettingsAccessDeniedException("Session superseded by a newer tab");
         }
         return authSession.getGuildId();
     }

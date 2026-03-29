@@ -10,7 +10,7 @@ import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.PenaltyTypesCar
 import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.PenaltyTypesHandler;
 import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
+
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
@@ -55,15 +55,18 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 	private Button darkModeToggle;
 
 	private boolean initialized;
+	private String sessionNonce;
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		if (hasToken(event)) {
+		if (sessionNonce != null && authSession.isActiveNonce(sessionNonce)) {
+			settingsService.setUiNonce(sessionNonce);
+		} else if (hasToken(event)) {
 			if (!tryAuthenticateFromToken(event)) {
 				return;
 			}
 			initialized = false;
-		} else if (authSession.isNotAuthenticated()) {
+		} else {
 			event.forwardTo(ErrorView.class);
 			return;
 		}
@@ -216,10 +219,17 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 
 	private boolean tryAuthenticateFromToken(BeforeEnterEvent event) {
 		List<String> tokens = event.getLocation().getQueryParameters().getParameters().get("token");
-		if (tokens == null || tokens.isEmpty() || !settingsService.authenticateWithToken(tokens.getFirst())) {
+		if (tokens == null || tokens.isEmpty()) {
 			event.forwardTo(ErrorView.class);
 			return false;
 		}
+		String nonce = settingsService.authenticateWithToken(tokens.getFirst());
+		if (nonce == null) {
+			event.forwardTo(ErrorView.class);
+			return false;
+		}
+		sessionNonce = nonce;
+		settingsService.setUiNonce(nonce);
 		return true;
 	}
 }
