@@ -186,7 +186,7 @@ com.esemudeo.quarkus.penaltybot/
 - Permission checks before sending to notification channel (graceful error handling)
 - extend test environment
 - highlight unsaved contents
-- improve texts, maybe by question mark tools
+- improve texts
 - find better solution for order of command permissions
 
 ## License

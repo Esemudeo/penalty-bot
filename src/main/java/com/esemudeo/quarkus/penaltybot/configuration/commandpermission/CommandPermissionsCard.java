@@ -11,6 +11,9 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -44,7 +47,16 @@ public class CommandPermissionsCard extends SettingsCard {
 		buildContent();
 	}
 
+	private static final String PERMISSIONS_HELP_LABEL = "How do permissions work?";
+	private static final String PERMISSIONS_HELP_TEXT =
+			"Minimum role: Discord roles are ranked by position. " +
+			"Members with the selected role or any role above it can use this command. " +
+			"Explicit roles: Grant access to specific roles regardless of their position in the hierarchy. " +
+			"A member can use a command if they match either the minimum role or any explicit role. " +
+			"The server owner and members with the Administrator permission always have access to all commands.";
+
 	private void buildContent() {
+		add(buildPermissionsHelpIcon());
 		for (CommandPermission cp : handler.getCommandPermissions()) {
 			buildCommandPermissionRow(cp);
 		}
@@ -144,6 +156,28 @@ public class CommandPermissionsCard extends SettingsCard {
 		saveButton.setEnabled(false);
 		Notification.show("Command permissions saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
 				.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+	}
+
+	private Div buildPermissionsHelpIcon() {
+		var helpIcon = new Icon(VaadinIcon.QUESTION_CIRCLE_O);
+		helpIcon.setSize("var(--lumo-font-size-m)");
+		helpIcon.getStyle().set("color", "var(--lumo-secondary-text-color)");
+		Tooltip.forComponent(helpIcon)
+				.withText(PERMISSIONS_HELP_TEXT)
+				.withPosition(Tooltip.TooltipPosition.END);
+
+		var helpLabel = new Span(PERMISSIONS_HELP_LABEL);
+		helpLabel.getStyle()
+				.set("font-size", "var(--lumo-font-size-s)")
+				.set("color", "var(--lumo-secondary-text-color)");
+
+		var wrapper = new Div(helpIcon, helpLabel);
+		wrapper.getStyle()
+				.set("display", "flex")
+				.set("align-items", "center")
+				.set("gap", "var(--lumo-space-xs)")
+				.set("margin-bottom", "var(--lumo-space-xs)");
+		return wrapper;
 	}
 
 	private Span renderRoleWithColorDot(SettingsService.GuildRole role) {
