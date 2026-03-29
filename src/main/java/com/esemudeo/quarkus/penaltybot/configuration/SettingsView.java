@@ -58,10 +58,14 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		if (authSession.isNotAuthenticated()) {
+		if (hasToken(event)) {
 			if (!tryAuthenticateFromToken(event)) {
 				return;
 			}
+			initialized = false;
+		} else if (authSession.isNotAuthenticated()) {
+			event.forwardTo(ErrorView.class);
+			return;
 		}
 
 		try {
@@ -203,6 +207,11 @@ public class SettingsView extends VerticalLayout implements BeforeEnterObserver 
 		penaltyTypesCard.applyInitialState();
 		globalSettingsCard.applyInitialState();
 		syncDarkModeWithSystemPreference();
+	}
+
+	private boolean hasToken(BeforeEnterEvent event) {
+		List<String> tokens = event.getLocation().getQueryParameters().getParameters().get("token");
+		return tokens != null && !tokens.isEmpty();
 	}
 
 	private boolean tryAuthenticateFromToken(BeforeEnterEvent event) {
