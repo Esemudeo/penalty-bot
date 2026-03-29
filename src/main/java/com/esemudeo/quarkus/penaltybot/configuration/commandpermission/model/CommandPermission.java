@@ -47,6 +47,6 @@ public class CommandPermission extends PanacheEntity {
 
 	@Builder.Default
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	@JoinColumn(name = CommandExplicitRole.COMMAND_PERMISSION_ID)
+	@JoinColumn(name = CommandExplicitRole.COMMAND_PERMISSION_ID, nullable = false)
 	private List<CommandExplicitRole> explicitRoles = new ArrayList<>();
 }
