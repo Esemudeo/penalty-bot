@@ -15,7 +15,15 @@
         </license>
     </licenses>
 
+    <scm>
+        <connection>scm:git:git@github.com:Esemudeo/penalty-bot.git</connection>
+        <developerConnection>scm:git:git@github.com:Esemudeo/penalty-bot.git</developerConnection>
+        <url>https://github.com/Esemudeo/penalty-bot</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
+        <version.release-plugin>3.1.1</version.release-plugin>
         <version.compiler-plugin>3.15.0</version.compiler-plugin>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -141,6 +149,16 @@
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${version.release-plugin}</version>
+                <configuration>
+                    <tagNameFormat>@{project.version}</tagNameFormat>
+                    <pushChanges>true</pushChanges>
+                    <localCheckout>true</localCheckout>
+                    <goals>verify</goals>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
