@@ -1,0 +1,10 @@
+@import url('./toggle-button.css');
+
+.settings-card {
+    box-shadow: var(--lumo-box-shadow-xs);
+    transition: box-shadow 0.3s ease;
+}
+
+.settings-card.dirty {
+    box-shadow: inset 0 0 8px color-mix(in srgb, var(--lumo-error-color) 70%, transparent);
+}

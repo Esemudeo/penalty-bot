@@ -8,10 +8,10 @@ public abstract class SettingsCard extends Div {
 	protected static final int NOTIFICATION_DURATION_MS = 3000;
 
 	protected SettingsCard(String title) {
+		addClassName("settings-card");
 		getStyle()
 				.set("background-color", "var(--lumo-base-color)")
 				.set("border-radius", "var(--lumo-border-radius-l)")
-				.set("box-shadow", "var(--lumo-box-shadow-xs)")
 				.set("padding", "var(--lumo-space-m)")
 				.set("margin-bottom", "var(--lumo-space-s)")
 				.set("box-sizing", "border-box");
@@ -19,6 +19,14 @@ public abstract class SettingsCard extends Div {
 		H3 sectionTitle = new H3(title);
 		sectionTitle.getStyle().set("margin", "0 0 var(--lumo-space-s) 0");
 		add(sectionTitle);
+	}
+
+	protected void setDirty(boolean dirty) {
+		if (dirty) {
+			addClassName("dirty");
+		} else {
+			removeClassName("dirty");
+		}
 	}
 
 	public abstract void applyInitialState();

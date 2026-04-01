@@ -89,14 +89,14 @@ public class CommandPermissionsCard extends SettingsCard {
 		minRoleCombo.addValueChangeListener(e -> {
 			Long roleId = e.getValue() != null ? e.getValue().id() : null;
 			handler.updateCurrentMinRole(name, roleId);
-			saveButton.setEnabled(handler.isDirty());
+			updateDirtyState();
 		});
 		explicitRolesCombo.addValueChangeListener(e -> {
 			var roleIds = e.getValue().stream()
 					.map(SettingsService.GuildRole::id)
 					.collect(Collectors.toSet());
 			handler.updateCurrentExplicitRoles(name, roleIds);
-			saveButton.setEnabled(handler.isDirty());
+			updateDirtyState();
 		});
 
 		var commandBlock = new Div();
@@ -149,11 +149,19 @@ public class CommandPermissionsCard extends SettingsCard {
 			}
 		}
 		saveButton.setEnabled(false);
+		setDirty(false);
+	}
+
+	private void updateDirtyState() {
+		boolean dirty = handler.isDirty();
+		saveButton.setEnabled(dirty);
+		setDirty(dirty);
 	}
 
 	private void savePermissions() {
 		handler.save();
 		saveButton.setEnabled(false);
+		setDirty(false);
 		Notification.show("Command permissions saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
 				.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 	}

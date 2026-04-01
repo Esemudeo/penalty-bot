@@ -90,6 +90,7 @@ public class GlobalSettingsCard extends SettingsCard {
 				: null;
 		handler.save(paypalField.getValue(), channelId);
 		saveButton.setEnabled(false);
+		setDirty(false);
 		Notification.show("Common settings saved.", NOTIFICATION_DURATION_MS, Notification.Position.BOTTOM_START)
 				.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 	}
@@ -101,6 +102,7 @@ public class GlobalSettingsCard extends SettingsCard {
 		boolean dirty = handler.isDirty(paypalField.getValue(), currentChannelId);
 		boolean valid = !paypalField.isInvalid();
 		saveButton.setEnabled(dirty && valid);
+		setDirty(dirty && valid);
 	}
 
 	@Override
@@ -121,6 +123,7 @@ public class GlobalSettingsCard extends SettingsCard {
 			notificationChannelComboBox.clear();
 		}
 		saveButton.setEnabled(false);
+		setDirty(false);
 	}
 
 	private void onChannelsDropdownOpened() {

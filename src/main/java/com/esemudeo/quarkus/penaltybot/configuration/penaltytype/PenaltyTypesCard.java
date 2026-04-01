@@ -241,6 +241,7 @@ public class PenaltyTypesCard extends SettingsCard {
 		saveButton.setEnabled(dirty);
 		cancelButton.setVisible(dirty);
 		addButton.setEnabled(handler.canAddMore());
+		setDirty(dirty);
 	}
 
 	@Override
