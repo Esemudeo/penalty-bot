@@ -40,6 +40,5 @@ webpack.config.js
 webpack.generated.js
 tsconfig.json
 types.d.ts
-frontend/generated/
-src/main/frontend/
+src/main/frontend/generated/
 .vaadin/
