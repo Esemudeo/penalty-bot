@@ -5,6 +5,7 @@ import com.esemudeo.quarkus.penaltybot.configuration.global.repository.GlobalGui
 import com.esemudeo.quarkus.penaltybot.penalty.command.ReportPenaltyCommand;
 import com.esemudeo.quarkus.penaltybot.penalty.model.Penalty;
 import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository;
+import com.esemudeo.quarkus.penaltybot.permission.PermissionService;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -25,6 +26,9 @@ public class ReportPenaltyModalListener extends ModalListener implements MemberM
 	PenaltyRepository penaltyRepository;
 
 	@Inject
+	PermissionService permissionService;
+
+	@Inject
 	GlobalGuildConfigRepository globalGuildConfigRepository;
 
 	@Override
@@ -36,6 +40,10 @@ public class ReportPenaltyModalListener extends ModalListener implements MemberM
 	protected void handleModalInteraction(ModalInteractionEvent event, @Nonnull Guild guild) {
 		Member affectedMember = validateMember(event, ReportPenaltyCommand.FIELD_MEMBER).orElse(null);
 		if (affectedMember == null) {
+			return;
+		}
+
+		if (hasNoPenaltyReportPermission(event, guild, affectedMember, permissionService)) {
 			return;
 		}
 

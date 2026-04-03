@@ -1,5 +1,10 @@
 package com.esemudeo.quarkus.penaltybot.penalty.command;
 
+import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
+import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.repository.PenaltyTypeRepository;
+import com.esemudeo.quarkus.penaltybot.permission.RequiresCommandPermission;
+import com.esemudeo.quarkus.penaltybot.shared.command.SlashCommand;
+import com.esemudeo.quarkus.penaltybot.shared.command.UserContextMenuCommand;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import net.dv8tion.jda.api.components.label.Label;
@@ -9,15 +14,10 @@ import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.components.textinput.TextInput;
 import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.modals.Modal;
-import com.esemudeo.quarkus.penaltybot.shared.command.SlashCommand;
-import com.esemudeo.quarkus.penaltybot.shared.command.UserContextMenuCommand;
-import com.esemudeo.quarkus.penaltybot.permission.RequiresCommandPermission;
-import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.model.PenaltyType;
-import com.esemudeo.quarkus.penaltybot.configuration.penaltytype.repository.PenaltyTypeRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +42,7 @@ public class ReportPenaltyCommand implements SlashCommand, UserContextMenuComman
 
 	@Override
 	public String getHelpDescription() {
-		return "Report a penalty for a member.";
+		return "Report a penalty for a member. Only members who can use this command can be reported.";
 	}
 
 	@Override

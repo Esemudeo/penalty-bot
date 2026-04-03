@@ -53,7 +53,9 @@ public class CommandPermissionsCard extends SettingsCard {
 			"Members with the selected role or any role above it can use this command. " +
 			"Explicit roles: Grant access to specific roles regardless of their position in the hierarchy. " +
 			"A member can use a command if they match either the minimum role or any explicit role. " +
-			"The server owner and members with the Administrator permission always have access to all commands.";
+			"The server owner and members with the Administrator permission always have access to all commands. " +
+			"Note: The role configured for the /penalty command also determines which members can be reported — " +
+			"only members who match the penalty permission can be selected as a target.";
 
 	private void buildContent() {
 		add(buildPermissionsHelpIcon());

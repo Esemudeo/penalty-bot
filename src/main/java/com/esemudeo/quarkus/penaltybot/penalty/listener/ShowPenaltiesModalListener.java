@@ -2,6 +2,7 @@ package com.esemudeo.quarkus.penaltybot.penalty.listener;
 
 import com.esemudeo.quarkus.penaltybot.penalty.command.ShowPenaltiesCommand;
 import com.esemudeo.quarkus.penaltybot.penalty.repository.PenaltyRepository;
+import com.esemudeo.quarkus.penaltybot.permission.PermissionService;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,6 +19,10 @@ import java.util.Map;
 public class ShowPenaltiesModalListener extends ModalListener implements MemberModalTrait, YearMonthModalTrait {
 
 	public static final String NO_PENALTIES_FOUND_MESSAGE = "No penalties found.";
+
+	@Inject
+	PermissionService permissionService;
+
 	@Inject
 	PenaltyRepository penaltyRepository;
 
@@ -30,6 +35,10 @@ public class ShowPenaltiesModalListener extends ModalListener implements MemberM
 	protected void handleModalInteraction(ModalInteractionEvent event, @Nonnull Guild validatedGuild) {
 		Member affectedMember = validateMember(event, ShowPenaltiesCommand.FIELD_MEMBER).orElse(null);
 		if (affectedMember == null) {
+			return;
+		}
+
+		if (hasNoPenaltyReportPermission(event, validatedGuild, affectedMember, permissionService)) {
 			return;
 		}
 
